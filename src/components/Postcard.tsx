@@ -10,6 +10,7 @@ type Placed = {
   src: string;
   alt: string;
   rotate: number;
+  size: number;
 };
 
 const TRAY = 160;
@@ -56,6 +57,7 @@ export default function Postcard() {
       src: stamp.src,
       alt: stamp.alt,
       rotate: stamp.rotate ?? 0,
+      size: stamp.size ?? 1,
     });
   }
 
@@ -195,7 +197,7 @@ export default function Postcard() {
                 filter: "drop-shadow(0 6px 12px rgba(0,0,0,0.18))",
               }}
             >
-              <StampImage src={placed.src} alt={placed.alt} />
+              <StampImage src={placed.src} alt={placed.alt} size={placed.size} />
               <button
                 onClick={() => setPlaced(null)}
                 aria-label="remove stamp"
@@ -270,6 +272,7 @@ function DraggableStamp({
         alt={stamp.alt}
         country={stamp.country}
         flag={stamp.flag}
+        size={stamp.size}
       />
     </motion.div>
   );
@@ -280,13 +283,21 @@ function StampImage({
   alt,
   country,
   flag,
+  size,
 }: {
   src: string;
   alt: string;
   country?: string;
   flag?: string;
+  /**
+   * Multiplier on the rendered image (1 = container fit, 1.5 = 50% bigger).
+   * Use to compensate for source PNGs that have lots of empty padding around
+   * the actual stamp art so they appear smaller than tighter-cropped ones.
+   */
+  size?: number;
 }) {
   const [errored, setErrored] = useState(false);
+  const scale = size && size > 0 ? size : 1;
 
   if (errored) {
     return <PlaceholderStamp country={country} flag={flag} />;
@@ -297,8 +308,9 @@ function StampImage({
       src={src}
       alt={alt}
       fill
-      sizes="180px"
+      sizes="240px"
       className="object-contain pointer-events-none"
+      style={{ transform: `scale(${scale})`, transformOrigin: "center" }}
       onError={() => setErrored(true)}
     />
   );

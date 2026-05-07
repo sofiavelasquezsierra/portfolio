@@ -1,9 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import { experience, education } from "@/data/experience";
 import { placesLived, languages } from "@/data/places";
-import SecurityTray from "@/components/SecurityTray";
+import FavoritesBoard from "@/components/FavoritesBoard";
 import PhotoOrLogo from "@/components/PhotoOrLogo";
 
 const levelColor: Record<string, string> = {
@@ -13,16 +15,20 @@ const levelColor: Record<string, string> = {
   learning: "#E5C57E",
 };
 
+// Three placeholder polaroids underneath the hero.
+// Drop /photos/me-1.jpg etc. to replace.
+const HERO_PHOTOS = [
+  { src: "/photos/me-1.jpg", caption: "✦ a moment", rotate: -4 },
+  { src: "/photos/me-2.jpg", caption: "✿ another", rotate: 3 },
+  { src: "/photos/me-3.jpg", caption: "❋ and one more", rotate: -2 },
+];
+
 export default function AboutPage() {
   return (
     <main className="bg-cream">
-      {/* SECTION 1 — Hero (passport-style intro, fits one screen) */}
       <Hero />
-
-      {/* SECTION 2 — Travel log + education (single screen) */}
+      <PhotoStrip />
       <TravelLog />
-
-      {/* SECTION 3 — Security tray with favorites (single screen) */}
       <Favorites />
     </main>
   );
@@ -33,7 +39,7 @@ function Hero() {
     <section className="min-h-[calc(100vh-2rem)] flex items-center pt-20 lg:pt-10 pb-10 section-padding">
       <div className="max-w-page mx-auto w-full">
         <div className="grid lg:grid-cols-[340px_1fr] gap-10 items-center">
-          {/* Photo, or standalone logo if no photo present */}
+          {/* Photo / logo */}
           <motion.div
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -63,9 +69,8 @@ function Hero() {
               ears, or head.
             </p>
 
-            {/* Identity grid */}
-            <div className="mt-6 grid grid-cols-2 md:grid-cols-3 gap-4">
-              <KV label="origin">🇨🇴 Bogotá</KV>
+            {/* Identity grid — origin & passport removed */}
+            <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
               <KV label="based">🇺🇸 Pittsburgh</KV>
               <KV label="status">
                 <span className="inline-flex items-center gap-1.5">
@@ -75,7 +80,6 @@ function Hero() {
               </KV>
               <KV label="role">building with ai · ml engineer</KV>
               <KV label="focus">product · health · wearables</KV>
-              <KV label="passport">🇨🇴 colombian</KV>
             </div>
 
             {/* Places + languages */}
@@ -125,6 +129,71 @@ function Hero() {
   );
 }
 
+/** Small Polaroid strip below the hero. Each is a placeholder until the
+ *  photo file exists at the expected path. */
+function PhotoStrip() {
+  return (
+    <section className="py-10 section-padding">
+      <div className="max-w-page mx-auto">
+        <div className="flex flex-wrap gap-6 md:gap-8 justify-center">
+          {HERO_PHOTOS.map((p, i) => (
+            <PhotoPolaroid key={i} {...p} />
+          ))}
+        </div>
+        <p className="mt-4 text-center text-xs text-mute">
+          drop photos at <code className="px-1 py-0.5 bg-codebg rounded text-[11px] text-ink/70">public/photos/me-1.jpg</code>, <code className="px-1 py-0.5 bg-codebg rounded text-[11px] text-ink/70">me-2.jpg</code>, <code className="px-1 py-0.5 bg-codebg rounded text-[11px] text-ink/70">me-3.jpg</code> to fill these in.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+function PhotoPolaroid({
+  src,
+  caption,
+  rotate,
+}: {
+  src: string;
+  caption: string;
+  rotate: number;
+}) {
+  const [errored, setErrored] = useState(false);
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 16, rotate: 0 }}
+      whileInView={{ opacity: 1, y: 0, rotate }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.55 }}
+      whileHover={{ rotate: 0, y: -4, scale: 1.04, zIndex: 10 }}
+      className="cursor-target relative bg-white p-3 pb-10 shadow-[0_10px_24px_-12px_rgba(0,0,0,0.3)]"
+      style={{ width: 200 }}
+    >
+      <div className="relative aspect-[4/5] bg-cream/80 overflow-hidden flex items-center justify-center">
+        {!errored ? (
+          <Image
+            src={src}
+            alt={caption}
+            fill
+            sizes="200px"
+            className="object-cover"
+            onError={() => setErrored(true)}
+          />
+        ) : (
+          <div className="text-center text-mute/60">
+            <p className="text-3xl">📷</p>
+            <p className="text-[10px] uppercase tracking-[0.2em] mt-1">
+              add photo
+            </p>
+          </div>
+        )}
+      </div>
+      <p className="absolute bottom-2 left-3 right-3 text-center handwritten text-base text-ink">
+        {caption}
+      </p>
+    </motion.div>
+  );
+}
+
 function TravelLog() {
   return (
     <section className="min-h-[calc(100vh-2rem)] flex items-center py-12 section-padding border-t border-ink/5">
@@ -135,7 +204,7 @@ function TravelLog() {
             <h2 className="mt-3 font-serif text-4xl md:text-5xl text-ink leading-tight mb-8">
               where i&apos;ve been working.
             </h2>
-            <ol className="relative border-l border-ink/15 pl-6 space-y-6">
+            <ol className="relative border-l border-ink/15 pl-6 space-y-7">
               {experience.map((e, i) => (
                 <motion.li
                   key={i}
@@ -152,7 +221,13 @@ function TravelLog() {
                   <h3 className="font-serif text-xl text-ink leading-tight mt-0.5">
                     {e.role}
                   </h3>
-                  <p className="text-sm text-ink/75">{e.org}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <OrgLogo src={e.logo} fallback={initialsOf(e.org)} />
+                    <p className="text-sm text-ink/75">{e.org}</p>
+                  </div>
+                  {e.detail && (
+                    <p className="text-xs text-mute mt-1">{e.detail}</p>
+                  )}
                 </motion.li>
               ))}
             </ol>
@@ -171,15 +246,22 @@ function TravelLog() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.4, delay: i * 0.05 }}
-                  className="bg-white/80 rounded-2xl p-5 border border-ink/5"
+                  className="bg-white/80 rounded-2xl p-5 border border-ink/5 flex items-start gap-3"
                 >
-                  <p className="text-[10px] uppercase tracking-[0.16em] text-mute">
-                    {e.date}
-                  </p>
-                  <p className="font-serif text-xl text-ink mt-0.5">
-                    {e.school}
-                  </p>
-                  <p className="text-sm text-ink/75 mt-0.5">{e.degree}</p>
+                  <OrgLogo
+                    src={e.logo}
+                    fallback={initialsOf(e.school)}
+                    big
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-[10px] uppercase tracking-[0.16em] text-mute">
+                      {e.date}
+                    </p>
+                    <p className="font-serif text-xl text-ink mt-0.5 leading-tight">
+                      {e.school}
+                    </p>
+                    <p className="text-sm text-ink/75 mt-0.5">{e.degree}</p>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -190,7 +272,8 @@ function TravelLog() {
               </p>
               <p className="text-ink/85 text-sm leading-relaxed">
                 building ml pipelines for meta&apos;s semg wristband at
-                cmu&apos;s weber neural interfaces lab.
+                cmu&apos;s weber neural interfaces lab + a research assistant
+                at the human-computer interaction institute.
               </p>
             </div>
           </div>
@@ -204,7 +287,7 @@ function Favorites() {
   return (
     <section className="min-h-[calc(100vh-2rem)] flex items-center py-12 section-padding border-t border-ink/5">
       <div className="max-w-page mx-auto w-full">
-        <div className="text-center mb-6">
+        <div className="text-center mb-8">
           <p className="stamp">favourites</p>
           <h2 className="mt-3 font-serif text-4xl md:text-5xl text-ink leading-tight">
             stuff i&apos;m into.
@@ -214,7 +297,7 @@ function Favorites() {
           </p>
         </div>
 
-        <SecurityTray />
+        <FavoritesBoard />
       </div>
     </section>
   );
@@ -235,4 +318,56 @@ function KV({
       <p className="mt-0.5 text-sm text-ink">{children}</p>
     </div>
   );
+}
+
+/**
+ * Small circular org logo. Falls back to a styled initials chip if the file
+ * is missing — nothing breaks before the user drops images into /public/logos.
+ */
+function OrgLogo({
+  src,
+  fallback,
+  big = false,
+}: {
+  src?: string;
+  fallback: string;
+  big?: boolean;
+}) {
+  const [errored, setErrored] = useState(false);
+  const size = big ? 44 : 28;
+
+  if (!src || errored) {
+    return (
+      <div
+        className="flex-shrink-0 rounded-full bg-rose/10 border border-rose/30 flex items-center justify-center text-[10px] font-semibold text-rose tracking-tight"
+        style={{ width: size, height: size }}
+      >
+        {fallback}
+      </div>
+    );
+  }
+  return (
+    <div
+      className="flex-shrink-0 rounded-full overflow-hidden border border-ink/10 bg-white relative"
+      style={{ width: size, height: size }}
+    >
+      <Image
+        src={src}
+        alt=""
+        fill
+        sizes={`${size}px`}
+        className="object-contain p-1"
+        onError={() => setErrored(true)}
+      />
+    </div>
+  );
+}
+
+function initialsOf(name: string): string {
+  // First letter of first two words, uppercased. "HCII" stays "HC".
+  const cleaned = name.replace(/[^a-zA-Z\s]/g, "").trim();
+  const parts = cleaned.split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "—";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return (parts[0][0] + parts[1][0]).toUpperCase();
 }
