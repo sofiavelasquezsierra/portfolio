@@ -103,6 +103,274 @@ body {
   100% { transform: translate(420px,180px) rotate(-20deg); opacity: 0; }
 }
 
+/* ---- Site pet ---- */
+
+.site-pet {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 80;
+  pointer-events: none;
+  --pet-x: 40px;
+  --pet-y: 0px;
+  --pet-flip: 1;
+  transform: translate3d(var(--pet-x), calc(var(--pet-y) * -1), 0);
+  will-change: transform;
+}
+.site-pet__hit {
+  display: block;
+  position: relative;
+  padding: 12px;
+  margin: -12px;
+  border: 0;
+  background: transparent;
+  cursor: grab;
+  pointer-events: auto;
+  transform: scaleX(var(--pet-flip));
+  transform-origin: 50% 50%;
+  transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  touch-action: none;
+}
+.site-pet[data-dragging] .site-pet__hit {
+  cursor: grabbing;
+}
+.site-pet__svg {
+  display: block;
+  overflow: visible;
+}
+
+/* Whole-body idle bob */
+.site-pet__bob {
+  display: block;
+  animation: site-pet-bob 0.5s ease-in-out infinite;
+}
+@keyframes site-pet-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-1.5px); }
+}
+
+/* Walk cycle — legs alternate */
+.site-pet__leg {
+  transform-origin: 50% 100%;
+  animation: site-pet-leg 0.46s steps(2, end) infinite;
+}
+.site-pet__leg--right {
+  animation-delay: 0.23s;
+}
+@keyframes site-pet-leg {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Blink */
+.site-pet__eye {
+  transform-origin: 50% 50%;
+  transition: transform 120ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.site-pet[data-blink] .site-pet__eye {
+  transform: scaleY(0.15);
+}
+
+/* Pause walking on hover */
+.site-pet[data-paused]:not([data-dragging]) .site-pet__leg,
+.site-pet[data-paused]:not([data-dragging]) .site-pet__bob {
+  animation-play-state: paused;
+}
+
+/* Dragged: legs kick */
+.site-pet[data-dragging] .site-pet__bob {
+  animation: none;
+}
+.site-pet[data-dragging] .site-pet__leg {
+  animation: site-pet-leg-kick 0.26s ease-in-out infinite;
+  transform-origin: 50% 0%;
+}
+.site-pet[data-dragging] .site-pet__leg--right {
+  animation-delay: 0.13s;
+}
+@keyframes site-pet-leg-kick {
+  0% { transform: translateY(1px) rotate(-16deg); }
+  50% { transform: translateY(-1px) rotate(14deg); }
+  100% { transform: translateY(1px) rotate(-16deg); }
+}
+
+/* Shadow shrinks while airborne */
+.site-pet__shadow {
+  transition: opacity 180ms ease-out, transform 180ms ease-out;
+  transform-origin: 22px 53.5px;
+}
+.site-pet[data-dragging] .site-pet__shadow {
+  opacity: 0.08;
+  transform: scale(0.7);
+}
+
+/* Wall bump — quick squash + tilt */
+.site-pet[data-bump] .site-pet__bob {
+  animation: site-pet-bump 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes site-pet-bump {
+  0% { transform: translateX(0) rotate(0deg); }
+  30% {
+    transform: translateX(calc(var(--pet-bump-dir, 1) * 3px))
+      rotate(calc(var(--pet-bump-dir, 1) * -6deg));
+  }
+  100% { transform: translateX(0) rotate(0deg); }
+}
+
+/* Hop on click */
+.site-pet[data-hopping] .site-pet__bob {
+  animation: site-pet-hop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes site-pet-hop {
+  0% { transform: translateY(0); }
+  40% { transform: translateY(-18px) rotate(-6deg); }
+  100% { transform: translateY(0); }
+}
+
+/* Dizzy — pet sways, eyes spin, stars orbit */
+.site-pet[data-dizzy] .site-pet__bob {
+  animation: site-pet-dizzy-sway 0.6s ease-in-out infinite;
+}
+.site-pet[data-dizzy] .site-pet__eyes {
+  animation: site-pet-dizzy-eyes 0.9s linear infinite;
+  transform-origin: 22px 25px;
+}
+.site-pet[data-dizzy] .site-pet__leg {
+  animation-play-state: paused;
+}
+@keyframes site-pet-dizzy-sway {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+@keyframes site-pet-dizzy-eyes {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Orbiting dizzy stars */
+.site-pet-spin-star {
+  position: absolute;
+  left: 22px;
+  top: -2px;
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background: #FBF6EC;
+  box-shadow: 0 0 4px rgba(251, 246, 236, 0.7);
+  transform: translate(-50%, -50%);
+  animation: site-pet-spin-star 0.9s linear infinite;
+  pointer-events: none;
+}
+@keyframes site-pet-spin-star {
+  from { transform: translate(-50%, -50%) rotate(0deg) translateX(18px) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg) translateX(18px) rotate(-360deg); }
+}
+
+/* Swirl trails — appear during shake before dizzy fully kicks in */
+.site-pet-swirl {
+  position: absolute;
+  left: 22px;
+  top: 6px;
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  color: #FBF6EC;
+  animation: site-pet-swirl 0.95s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  border: 1.5px solid currentColor;
+  border-right-color: transparent;
+  border-top-color: transparent;
+  border-radius: 50%;
+}
+@keyframes site-pet-swirl {
+  0% { opacity: 0; transform: translate(-50%, -50%) rotate(0deg) scale(0.5); }
+  30% { opacity: 0.95; }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--swirl-dx, 0px)), calc(-50% - 34px)) rotate(540deg) scale(1.15);
+  }
+}
+
+/* Emote layer — anchor for spin stars / swirls */
+.site-pet__emotes {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 44px;
+  height: 56px;
+  pointer-events: none;
+}
+
+/* Speech bubble — dark translucent ink with cream mono text */
+.site-pet__bubble {
+  position: absolute;
+  left: 22px;
+  bottom: calc(100% + 14px);
+  transform: translate(-50%, 0) translateY(4px);
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(20, 28, 44, 0.86);
+  color: #FBF6EC;
+  font-family: ui-monospace, "SF Mono", "Monaco", "Consolas", monospace;
+  font-size: 11px;
+  line-height: 1.25;
+  letter-spacing: 0.02em;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 180ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  box-shadow: 0 6px 14px -6px rgba(0, 0, 0, 0.4);
+}
+.site-pet__bubble[data-show] {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.site-pet__bubble::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  width: 0;
+  height: 0;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: rgba(20, 28, 44, 0.86);
+  border-bottom: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-pet__bob,
+  .site-pet__leg,
+  .site-pet-spin-star,
+  .site-pet-swirl {
+    animation: none !important;
+  }
+}
+
+/* ---- Star twinkle / pulse ---- */
+@keyframes starTwinkle {
+  0%, 100% { transform: scale(0.92); }
+  50% { transform: scale(1.08); }
+}
+.star-twinkle { animation: starTwinkle 3.4s ease-in-out infinite; transform-origin: center; }
+
+@keyframes starPulse {
+  0%, 100% {
+    transform: scale(0.95);
+    filter: drop-shadow(0 0 4px rgba(255,255,255,0.4));
+  }
+  50% {
+    transform: scale(1.18);
+    filter: drop-shadow(0 0 12px rgba(255,255,255,0.95));
+  }
+}
+.star-pulse { animation: starPulse 2.8s ease-in-out infinite; transform-origin: center; }
+
 @keyframes logoFloat {
   0%, 100% { transform: translateY(0) rotate(0deg); }
   50% { transform: translateY(-2px) rotate(-2deg); }
