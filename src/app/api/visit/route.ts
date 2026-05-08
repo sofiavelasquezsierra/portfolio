@@ -1,25 +1,19 @@
 import { NextResponse } from "next/server";
+import { Redis } from "@upstash/redis";
 
-// Simple in-memory counter. Resets on serverless cold starts.
-// For persistence in production, swap to Vercel KV / Upstash — see README.
-declare global {
-  // eslint-disable-next-line no-var
-  var __sofiaVisitCount: number | undefined;
-}
+const redis = new Redis({
+  url: process.env.UPSTASH_REDIS_REST_KV_REST_API_URL!,
+  token: process.env.UPSTASH_REDIS_REST_KV_REST_API_TOKEN!,
+});
 
-function read(): number {
-  return globalThis.__sofiaVisitCount ?? 1;
-}
-function write(n: number) {
-  globalThis.__sofiaVisitCount = n;
-}
+const KEY = "sofia:visit_count";
 
 export async function GET() {
-  return NextResponse.json({ count: read() });
+  const count = (await redis.get<number>(KEY)) ?? 0;
+  return NextResponse.json({ count });
 }
 
 export async function POST() {
-  const next = read() + 1;
-  write(next);
-  return NextResponse.json({ count: next });
+  const count = await redis.incr(KEY);
+  return NextResponse.json({ count });
 }
