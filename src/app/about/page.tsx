@@ -138,10 +138,7 @@ function PhotoStrip() {
           {HERO_PHOTOS.map((p, i) => (
             <PhotoPolaroid key={i} {...p} />
           ))}
-        </div>
-        <p className="mt-4 text-center text-xs text-mute">
-          drop photos at <code className="px-1 py-0.5 bg-codebg rounded text-[11px] text-ink/70">public/photos/me-1.jpg</code>, <code className="px-1 py-0.5 bg-codebg rounded text-[11px] text-ink/70">me-2.jpg</code>, <code className="px-1 py-0.5 bg-codebg rounded text-[11px] text-ink/70">me-3.jpg</code> to fill these in.
-        </p>
+        </div>  
       </div>
     </section>
   );

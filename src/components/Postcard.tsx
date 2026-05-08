@@ -230,14 +230,6 @@ export default function Postcard() {
             <DraggableStamp key={s.id} stamp={s} onEnd={handleDragEnd} />
           ))}
         </div>
-
-        <p className="mt-5 text-xs text-mute leading-relaxed">
-          each stamp is from a country i&apos;ve lived in. add more by editing{" "}
-          <code className="px-1 py-0.5 bg-codebg rounded text-[11px] text-ink/70">
-            src/data/stamps.ts
-          </code>
-          .
-        </p>
       </div>
     </div>
   );
