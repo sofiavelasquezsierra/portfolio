@@ -113,8 +113,9 @@ body {
   pointer-events: none;
   --pet-x: 40px;
   --pet-y: 0px;
+  --pet-ground: 0px;
   --pet-flip: 1;
-  transform: translate3d(var(--pet-x), calc(var(--pet-y) * -1), 0);
+  transform: translate3d(var(--pet-x), calc((var(--pet-y) + var(--pet-ground)) * -1), 0);
   will-change: transform;
 }
 .site-pet__hit {
@@ -162,11 +163,13 @@ body {
   50% { transform: translateY(-3px); }
 }
 
-/* Blink */
+/* Blink — each eye has its own transform-origin so it squishes from
+   its own center, not the SVG origin. */
 .site-pet__eye {
-  transform-origin: 50% 50%;
   transition: transform 120ms cubic-bezier(0.22, 1, 0.36, 1);
 }
+.site-pet__eye--left { transform-origin: 15px 27px; }
+.site-pet__eye--right { transform-origin: 29px 27px; }
 .site-pet[data-blink] .site-pet__eye {
   transform: scaleY(0.15);
 }
@@ -348,6 +351,33 @@ body {
   .site-pet__leg,
   .site-pet-spin-star,
   .site-pet-swirl {
+    animation: none !important;
+  }
+}
+
+/* ---- Pet playground treats ---- */
+
+.pet-treat {
+  position: fixed;
+  bottom: 6px;
+  z-index: 75;
+  pointer-events: none;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.25));
+}
+
+@keyframes petTreatDrop {
+  0% { transform: translateY(-180px) rotate(-12deg); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(0) rotate(0deg); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pet-treat {
     animation: none !important;
   }
 }

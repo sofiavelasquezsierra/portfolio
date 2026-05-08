@@ -2,6 +2,8 @@
 
 import { motion } from "framer-motion";
 import ParticleSandbox from "@/components/ParticleSandbox";
+import PetPlayground from "@/components/PetPlayground";
+import PetTicTacToe from "@/components/PetTicTacToe";
 import { useVisitor } from "@/hooks/useVisitor";
 
 export default function GalleryPage() {
@@ -37,6 +39,10 @@ export default function GalleryPage() {
         </motion.div>
 
         <ParticleSandbox />
+
+        <PetPlayground />
+
+        <PetTicTacToe />
       </div>
     </main>
   );

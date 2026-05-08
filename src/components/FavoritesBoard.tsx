@@ -36,6 +36,7 @@ function Polaroid({ item, index }: { item: Favorite; index: number }) {
       viewport={{ once: true, margin: "-40px" }}
       transition={{ duration: 0.5, delay: index * 0.05 }}
       whileHover={{ rotate: 0, y: -6, scale: 1.04, zIndex: 20 }}
+      data-pet-perch
       className="cursor-target relative bg-white p-3 pb-12 shadow-[0_10px_24px_-12px_rgba(0,0,0,0.32)]"
     >
       {/* Washi tape on a corner */}

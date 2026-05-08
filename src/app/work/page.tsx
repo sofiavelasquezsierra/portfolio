@@ -7,7 +7,7 @@ import ProjectCard from "@/components/ProjectCard";
 
 const filters: { id: "all" | ProjectCategory; label: string }[] = [
   { id: "all", label: "all" },
-  { id: "ai", label: "ai products" },
+  { id: "ai", label: "side projects" },
   { id: "research", label: "research" },
   { id: "engineering", label: "engineering" },
 ];
@@ -48,8 +48,8 @@ export default function WorkPage() {
               things i&apos;ve <span className="wavy">built</span>.
             </h1>
             <p className="mt-2 max-w-xl text-mute text-sm md:text-base">
-              building with ai — product &amp; ml for health and wearables.
-              hover any card for role, team, and timeframe.
+              product &amp; ml in wearables and health ai. side projects built
+              with ai for fun. hover any card for role, team, and timeframe.
             </p>
           </div>
 

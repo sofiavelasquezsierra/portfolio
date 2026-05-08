@@ -60,13 +60,13 @@ function Hero() {
               hi, i&apos;m <span className="wavy">sofia</span>.
             </h1>
             <p className="mt-4 text-lg text-ink/85 leading-relaxed">
-              building with ai — product and ml for{" "}
+              product and ml in{" "}
               <span className="bg-rose/15 text-ink px-1 rounded">
-                health and wearables
+                wearables and health ai
               </span>
-              . i extract meaning from noisy biosignals (eeg, semg, imu) and
-              ship it as something a person can actually use on their wrist,
-              ears, or head.
+              . i turn noisy biosignals (eeg, semg, imu) into things people
+              actually use on their wrist, ears, or head — and on the side i
+              build little things with ai for fun.
             </p>
 
             {/* Identity grid — origin & passport removed */}
@@ -78,8 +78,8 @@ function Hero() {
                   open · aug 2026
                 </span>
               </KV>
-              <KV label="role">building with ai · ml engineer</KV>
-              <KV label="focus">product · health · wearables</KV>
+              <KV label="role">product &amp; ml engineer</KV>
+              <KV label="focus">wearables · health ai</KV>
             </div>
 
             {/* Places + languages */}

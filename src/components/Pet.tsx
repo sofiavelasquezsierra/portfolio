@@ -5,20 +5,16 @@ import { usePathname } from "next/navigation";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 
 /**
- * Site pet — a tiny ink-slab creature that walks along the bottom of the
- * viewport. Lives globally (persists across pages via the layout). Inspired
- * by Megan Yap's site-pet:
- *   - Walks left/right; bumps off the screen edges
+ * Site pet — a round periwinkle creature that walks along the bottom of
+ * the viewport. Tamagotchi-style gameplay:
+ *   - Walks autonomously, bumps off screen edges
  *   - Click to hop, with quips that escalate the more you poke it
- *   - Drag to relocate; release with velocity to throw it
- *   - Shake while dragging to make it dizzy (eyes spin, swirl trails)
- *   - Eye tracking toward the cursor
- *   - Idle blink + page-specific idle chatter
- *   - Speech bubbles in dark translucent ink with cream mono text
- *
- * All animation lives in CSS keyframes triggered by data-* attributes; the
- * one RAF loop only manages position + physics. Position is persisted in
- * localStorage so the pet remembers where you left it.
+ *   - Drag → release with velocity to throw it
+ *   - Shake to make it dizzy
+ *   - Eye tracking + idle blinks
+ *   - Per-page chatter
+ *   - Drop onto perchable DOM elements (`.index-card`, `[data-pet-perch]`)
+ *     and the pet stands and walks on top of them
  */
 
 const PET_W = 44;
@@ -28,11 +24,24 @@ const SPEED = 34; // px/sec
 const POSITION_KEY = "sofia.pet.position";
 const POKES_KEY = "sofia.pet.pokes";
 
+const PERCH_SELECTOR = ".index-card, [data-pet-perch]";
+
+const TREAT_SELECTOR = "[data-pet-treat]";
+
 const PHRASES = {
   bump: ["ow!", "oof", "ouch!", "argh"],
+  eat: ["yummy!", "thanks!", "more please!", "om nom", "delicious", "tasty!", "nom"],
   hover: ["what's up?", "hi!", "oh hey", "howdy", "sup?", "hello"],
   drag: ["where are you\ntaking me?", "put me down!", "wheeee", "careful!", "oh no"],
   drop: ["phew", "back to it", "thanks i guess", "okay okay"],
+  perchLand: [
+    "ooh a ledge",
+    "nice spot",
+    "cozy up here",
+    "i live here now",
+    "high ground",
+    "better view",
+  ],
   dizzy: ["whoaa....", "ugh.", "...stars", "head spinny"],
   clickMild: ["heya!", "hi there", "sup", "yo", "oh hi"],
   clickMeh: ["still here", "again?", "hi again", "yes?", "pspsps"],
@@ -46,6 +55,7 @@ const PHRASES = {
     "hmm",
     "psst",
     "sofia hasn't fed me\nin three days",
+    "have you tried picking\nme up?",
   ],
   idleWork: [
     "ooh interesting",
@@ -54,13 +64,15 @@ const PHRASES = {
     "i'm learning things",
     "tell me more",
     "fascinating",
+    "i bet i could stand\non one of those...",
   ],
   idleAbout: [
     "pittsburgh huh",
     "she speaks five languages?!",
     "lived in six countries\nthat's wild",
     "oh that's a cute photo",
-    "weber lab is doing cool work",
+    "weber lab is doing\ncool work",
+    "drop me on a polaroid!",
   ],
   idleGallery: [
     "wheee sparkles",
@@ -74,6 +86,15 @@ const PHRASES = {
     "she'd love to hear",
     "drop a stamp on it",
     "the postcard is ready",
+    "stand me on the postcard?",
+  ],
+  idlePerch: [
+    "this view is great",
+    "kinda high up huh",
+    "i'm supervising",
+    "overseeing operations",
+    "king of this card",
+    "don't look down",
   ],
   pageLandWork: ["ooh look at this!"],
   pageLandAbout: ["hi nice to meet you"],
@@ -89,7 +110,8 @@ function clickPool(count: number) {
   return PHRASES.clickDone;
 }
 
-function idlePoolFor(pathname: string) {
+function idlePoolFor(pathname: string, onPerch: boolean) {
+  if (onPerch) return PHRASES.idlePerch;
   if (pathname.startsWith("/work")) return PHRASES.idleWork;
   if (pathname.startsWith("/about")) return PHRASES.idleAbout;
   if (pathname.startsWith("/gallery")) return PHRASES.idleGallery;
@@ -113,13 +135,26 @@ export default function Pet() {
   const reduced = useReducedMotion();
   const pathname = usePathname();
 
+  // Hide on landing — keep the welcome screen clean.
+  if (pathname === "/") return null;
+
+  return <PetBody pathname={pathname} reduced={reduced} />;
+}
+
+function PetBody({
+  pathname,
+  reduced,
+}: {
+  pathname: string;
+  reduced: boolean;
+}) {
   const petRef = useRef<HTMLDivElement>(null);
   const bubbleRef = useRef<HTMLDivElement>(null);
   const emotesRef = useRef<HTMLDivElement>(null);
   const eyesRef = useRef<SVGGElement>(null);
   const hitRef = useRef<HTMLButtonElement>(null);
 
-  // Animation state — refs so we don't re-render every frame.
+  // Animation state — refs to avoid per-frame re-renders.
   const xRef = useRef(40);
   const yRef = useRef(0);
   const xVelRef = useRef(0);
@@ -134,7 +169,6 @@ export default function Pet() {
   const pressStartRef = useRef<{ x: number; y: number; t: number } | null>(null);
   const dragPointerIdRef = useRef<number | null>(null);
   const dragOffsetRef = useRef({ x: 0, y: 0 });
-  const wasDraggedRef = useRef(false);
 
   const dizzyRef = useRef(false);
   const dizzyUntilRef = useRef(0);
@@ -148,17 +182,20 @@ export default function Pet() {
   const bumpedLeftRef = useRef(false);
   const bumpedRightRef = useRef(false);
 
+  // Perch state — when set, pet walks on top of this DOM element.
+  const perchRef = useRef<HTMLElement | null>(null);
+  const groundOffsetRef = useRef(0);
+
   const bubbleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const blinkTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pathRef = useRef(pathname);
 
-  // Keep latest pathname accessible inside the long-lived RAF loop / timers.
   useEffect(() => {
     pathRef.current = pathname;
   }, [pathname]);
 
-  /* -------- Speech helpers -------- */
+  /* -------- Helpers -------- */
 
   const say = (pool: string[], ms = 1800) => {
     const bubble = bubbleRef.current;
@@ -173,7 +210,43 @@ export default function Pet() {
     );
   };
 
-  /* -------- Init: load saved position -------- */
+  /** Find a perchable element directly beneath the pet's feet. */
+  const findPerchAt = (petCenterX: number, petFeetY: number): HTMLElement | null => {
+    // elementsFromPoint returns topmost-first, so we honor stacking order.
+    const probes = document.elementsFromPoint(petCenterX, petFeetY + 4);
+    for (const el of probes) {
+      if (!(el instanceof HTMLElement)) continue;
+      if (el.closest(".site-pet")) continue; // ignore the pet itself
+      const perch = el.closest(PERCH_SELECTOR);
+      if (perch instanceof HTMLElement) {
+        const r = perch.getBoundingClientRect();
+        // Only count it as a perch if the pet's feet are near its top edge
+        if (Math.abs(petFeetY - r.top) < 32) {
+          return perch;
+        }
+      }
+    }
+    return null;
+  };
+
+  const mountPerch = (el: HTMLElement) => {
+    perchRef.current = el;
+    bumpedLeftRef.current = false;
+    bumpedRightRef.current = false;
+  };
+
+  const dismountPerch = () => {
+    if (!perchRef.current) return;
+    // Carry our current altitude over to ground-relative coords so gravity
+    // takes us down from where we were.
+    yRef.current = Math.max(0, yRef.current + groundOffsetRef.current);
+    perchRef.current = null;
+    groundOffsetRef.current = 0;
+    bumpedLeftRef.current = false;
+    bumpedRightRef.current = false;
+  };
+
+  /* -------- Init position -------- */
 
   useEffect(() => {
     try {
@@ -194,7 +267,7 @@ export default function Pet() {
     }
   }, []);
 
-  /* -------- RAF loop: walking + physics + eye tracking -------- */
+  /* -------- RAF: walking + physics + eye tracking + perch tracking -------- */
 
   useEffect(() => {
     let rafId = 0;
@@ -240,31 +313,129 @@ export default function Pet() {
           .forEach((s) => s.remove());
       }
 
-      // Walking
-      const wL = 8;
-      const wR = window.innerWidth - PET_W - 8;
-      if (!hoveredRef.current && !draggingRef.current && !reduced && !inDizzy) {
-        const step = SPEED * (dt / 1000);
-        if (Math.abs(xVelRef.current) > 8) {
-          xRef.current += xVelRef.current * (dt / 1000);
-          xVelRef.current *= Math.pow(0.04, dt / 1000);
-          dirRef.current = xVelRef.current >= 0 ? 1 : -1;
+      // Resolve current perch + ground offset + walking bounds
+      let groundOffset = 0;
+      let leftWall = 8;
+      let rightWall = window.innerWidth - PET_W - 8;
+      const perch = perchRef.current;
+      if (perch) {
+        if (!document.contains(perch)) {
+          // Perch element was removed (e.g. nav to a different page)
+          dismountPerch();
         } else {
-          xVelRef.current = 0;
-          xRef.current += dirRef.current * step;
+          const r = perch.getBoundingClientRect();
+          if (
+            r.width === 0 ||
+            r.top > window.innerHeight + 10 ||
+            r.bottom < -10
+          ) {
+            // Off screen — drop the pet
+            dismountPerch();
+          } else {
+            groundOffset = window.innerHeight - r.top;
+            leftWall = Math.max(8, r.left + 4);
+            rightWall = Math.max(
+              leftWall + 4,
+              r.right - PET_W - 4
+            );
+          }
         }
-        if (xRef.current <= wL) {
-          xRef.current = wL;
-          if (dirRef.current === -1) bump(1);
-          dirRef.current = 1;
-        } else if (xRef.current >= wR) {
-          xRef.current = wR;
-          if (dirRef.current === 1) bump(-1);
-          dirRef.current = -1;
+      }
+      groundOffsetRef.current = groundOffset;
+
+      // Treat chasing — only on the floor (not perched), and only for
+      // treats that have settled near the ground.
+      let chaseTarget: HTMLElement | null = null;
+      if (
+        !perch &&
+        !hoveredRef.current &&
+        !draggingRef.current &&
+        !reduced &&
+        !inDizzy
+      ) {
+        const treats = document.querySelectorAll<HTMLElement>(TREAT_SELECTOR);
+        if (treats.length > 0) {
+          const petCenter = xRef.current + PET_W / 2;
+          let minDist = Infinity;
+          for (const t of treats) {
+            const r = t.getBoundingClientRect();
+            // Treat must be near the floor — skip ones still falling
+            if (r.bottom < window.innerHeight - 50) continue;
+            const tx = r.left + r.width / 2;
+            const d = Math.abs(tx - petCenter);
+            if (d < minDist) {
+              minDist = d;
+              chaseTarget = t;
+            }
+          }
         }
       }
 
-      // Vertical physics — gravity, with a small bounce on hard landings
+      // Walking
+      if (!hoveredRef.current && !draggingRef.current && !reduced && !inDizzy) {
+        if (chaseTarget) {
+          // Chase the closest treat
+          const r = chaseTarget.getBoundingClientRect();
+          const targetCenter = r.left + r.width / 2;
+          const petCenter = xRef.current + PET_W / 2;
+          const dx = targetCenter - petCenter;
+
+          if (Math.abs(dx) < 18) {
+            // Reached the treat — eat it
+            const id = chaseTarget.dataset.treatId;
+            window.dispatchEvent(
+              new CustomEvent("pet:ate-treat", { detail: { id } })
+            );
+            say(PHRASES.eat, 1400);
+            if (!reduced) {
+              pet.setAttribute("data-hopping", "");
+              setTimeout(() => pet.removeAttribute("data-hopping"), 520);
+            }
+            xVelRef.current = 0;
+          } else {
+            // Walk faster than usual when chasing
+            const step = SPEED * (dt / 1000) * 1.7;
+            xRef.current += Math.sign(dx) * step;
+            dirRef.current = dx > 0 ? 1 : -1;
+            xRef.current = Math.max(leftWall, Math.min(rightWall, xRef.current));
+            xVelRef.current = 0;
+          }
+        } else {
+          const step = SPEED * (dt / 1000);
+          if (xRef.current < leftWall) {
+            xRef.current = Math.min(leftWall, xRef.current + step);
+            dirRef.current = 1;
+          } else if (xRef.current > rightWall) {
+            xRef.current = Math.max(rightWall, xRef.current - step);
+            dirRef.current = -1;
+          } else if (Math.abs(xVelRef.current) > 8) {
+            xRef.current += xVelRef.current * (dt / 1000);
+            xVelRef.current *= Math.pow(0.04, dt / 1000);
+            dirRef.current = xVelRef.current >= 0 ? 1 : -1;
+            if (xRef.current < leftWall) {
+              xRef.current = leftWall;
+              xVelRef.current = 0;
+            } else if (xRef.current > rightWall) {
+              xRef.current = rightWall;
+              xVelRef.current = 0;
+            }
+          } else {
+            xVelRef.current = 0;
+            xRef.current += dirRef.current * step;
+            if (xRef.current <= leftWall) {
+              xRef.current = leftWall;
+              if (dirRef.current === -1) bump(1);
+              dirRef.current = 1;
+            } else if (xRef.current >= rightWall) {
+              xRef.current = rightWall;
+              if (dirRef.current === 1) bump(-1);
+              dirRef.current = -1;
+            }
+          }
+        }
+      }
+
+      // Vertical physics — gravity + small bounce
       if (!draggingRef.current) {
         const dtSec = dt / 1000;
         const g = yVelRef.current > 0 ? 2000 : 3200;
@@ -279,13 +450,15 @@ export default function Pet() {
 
       pet.style.setProperty("--pet-x", `${xRef.current}px`);
       pet.style.setProperty("--pet-y", `${yRef.current}px`);
+      pet.style.setProperty("--pet-ground", `${groundOffset}px`);
       pet.style.setProperty("--pet-flip", dirRef.current === 1 ? "1" : "-1");
 
-      // Eye tracking — eyes glance toward cursor
+      // Eye tracking
       const eyes = eyesRef.current;
       if (eyes && lastPointerRef.current.x > -9999) {
         const cx = xRef.current + PET_W / 2;
-        const cy = window.innerHeight - yRef.current - PET_H / 2;
+        const cy =
+          window.innerHeight - groundOffset - yRef.current - PET_H / 2;
         const dx = lastPointerRef.current.x - cx;
         const dy = lastPointerRef.current.y - cy;
         const d = Math.hypot(dx, dy) || 1;
@@ -303,7 +476,6 @@ export default function Pet() {
     };
     window.addEventListener("pointermove", onPointerMove, { passive: true });
 
-    // Scroll jolt — pet hops a little when you scroll, on the ground only
     let lastScrollY = window.scrollY;
     const onScroll = () => {
       if (reduced || draggingRef.current) {
@@ -313,7 +485,8 @@ export default function Pet() {
       const dy = window.scrollY - lastScrollY;
       lastScrollY = window.scrollY;
       const mag = Math.min(400, Math.abs(dy));
-      if (mag < 2 || yRef.current > 6) return;
+      // Don't apply scroll jolt when perched — would slide the pet around
+      if (mag < 2 || yRef.current > 6 || perchRef.current) return;
       const impulse = Math.min(520, Math.sqrt(mag) * 26);
       yVelRef.current = Math.min(560, Math.max(yVelRef.current, impulse));
     };
@@ -380,7 +553,6 @@ export default function Pet() {
       if (draggingRef.current) return;
       hoveredRef.current = true;
       pet!.setAttribute("data-paused", "");
-      // Face the cursor on hover
       const r = pet!.getBoundingClientRect();
       dirRef.current =
         lastPointerRef.current.x < r.left + r.width / 2 ? -1 : 1;
@@ -399,7 +571,6 @@ export default function Pet() {
     const onPointerDown = (e: PointerEvent) => {
       if (e.button !== 0) return;
       pressActiveRef.current = true;
-      wasDraggedRef.current = false;
       pressStartRef.current = {
         x: e.clientX,
         y: e.clientY,
@@ -432,7 +603,8 @@ export default function Pet() {
         const dy = e.clientY - ds.y;
         if (dy < -DRAG_THRESHOLD || Math.abs(dx) > DRAG_THRESHOLD * 2) {
           draggingRef.current = true;
-          wasDraggedRef.current = true;
+          // Dismount perch on drag — preserve absolute screen position
+          if (perchRef.current) dismountPerch();
           const r = pet!.getBoundingClientRect();
           dragOffsetRef.current = {
             x: ds.x - r.left,
@@ -446,7 +618,6 @@ export default function Pet() {
         }
       }
 
-      // Update position to follow cursor
       const newLeft = e.clientX - dragOffsetRef.current.x;
       const newTop = e.clientY - dragOffsetRef.current.y;
       xRef.current = Math.max(4, Math.min(window.innerWidth - PET_W - 4, newLeft));
@@ -456,7 +627,7 @@ export default function Pet() {
         Math.min(window.innerHeight - PET_H - 4, yFromGround)
       );
 
-      // Shake detection
+      // Shake → dizzy
       const rawDx = e.movementX ?? 0;
       const dirNow = Math.sign(rawDx);
       if (Math.abs(rawDx) > 2 && dirNow !== 0) {
@@ -492,7 +663,7 @@ export default function Pet() {
         pet!.removeAttribute("data-dragging");
         pet!.removeAttribute("data-paused");
 
-        // Compute throw velocity from the last ~140ms of pointer history
+        // Throw velocity from last ~140ms of pointer history
         if (ptrHistoryRef.current.length >= 2) {
           const first = ptrHistoryRef.current[0];
           const last = ptrHistoryRef.current[ptrHistoryRef.current.length - 1];
@@ -503,7 +674,20 @@ export default function Pet() {
           yVelRef.current = Math.max(-420, Math.min(420, -vy));
         }
 
-        // Save position
+        // Check if dropped onto a perch
+        const petCenterX = xRef.current + PET_W / 2;
+        const petFeetY = window.innerHeight - yRef.current;
+        const perch = findPerchAt(petCenterX, petFeetY);
+        if (perch && !dizzyRef.current) {
+          xVelRef.current = 0;
+          yVelRef.current = 0;
+          mountPerch(perch);
+          yRef.current = 0;
+          say(PHRASES.perchLand, 2200);
+        } else {
+          say(PHRASES.drop, 1400);
+        }
+
         try {
           localStorage.setItem(
             POSITION_KEY,
@@ -512,10 +696,8 @@ export default function Pet() {
         } catch {
           // ignore
         }
-
-        say(PHRASES.drop, 1400);
       } else {
-        // Plain click — hop + escalating quip
+        // Plain click → hop + escalating quip
         const now = performance.now();
         if (now - lastClickAtRef.current > 5000) clickCountRef.current = 0;
         clickCountRef.current += 1;
@@ -530,7 +712,6 @@ export default function Pet() {
 
         say(clickPool(clickCountRef.current), 1400);
 
-        // Track total pokes locally for fun
         try {
           const p = parseInt(localStorage.getItem(POKES_KEY) ?? "0", 10);
           localStorage.setItem(POKES_KEY, String(p + 1));
@@ -548,7 +729,6 @@ export default function Pet() {
     hit.addEventListener("pointerup", endPress);
     hit.addEventListener("pointercancel", endPress);
 
-    // Safety net — release drag if pointerup happens off the pet
     const onWindowPointerUp = (e: PointerEvent) => {
       if (!pressActiveRef.current && !draggingRef.current) return;
       pressActiveRef.current = false;
@@ -607,15 +787,14 @@ export default function Pet() {
           !draggingRef.current &&
           !dizzyRef.current
         ) {
-          say(idlePoolFor(pathRef.current), 2200);
+          say(idlePoolFor(pathRef.current, !!perchRef.current), 2200);
         }
         schedule();
       }, delay);
     }
-    // Seed first quip 12s after mount so the behavior is discoverable
     const firstTimer = setTimeout(() => {
       if (!hoveredRef.current && !draggingRef.current && !dizzyRef.current) {
-        say(idlePoolFor(pathRef.current), 2200);
+        say(idlePoolFor(pathRef.current, !!perchRef.current), 2200);
       }
       schedule();
     }, 12000);
@@ -623,6 +802,26 @@ export default function Pet() {
       clearTimeout(firstTimer);
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     };
+  }, []);
+
+  /* -------- External "make the pet say something" hook -------- */
+
+  useEffect(() => {
+    const onSay = (e: Event) => {
+      const detail = (e as CustomEvent<{ text?: string; ms?: number }>).detail;
+      if (!detail?.text) return;
+      const bubble = bubbleRef.current;
+      if (!bubble) return;
+      bubble.innerHTML = detail.text.replace(/\n/g, "<br>");
+      bubble.setAttribute("data-show", "");
+      if (bubbleTimerRef.current) clearTimeout(bubbleTimerRef.current);
+      bubbleTimerRef.current = setTimeout(
+        () => bubble.removeAttribute("data-show"),
+        detail.ms ?? 1800
+      );
+    };
+    window.addEventListener("pet:say", onSay as EventListener);
+    return () => window.removeEventListener("pet:say", onSay as EventListener);
   }, []);
 
   /* -------- Page-arrival quip -------- */
@@ -654,6 +853,7 @@ export default function Pet() {
             className="site-pet__svg"
             fill="none"
           >
+            {/* Soft contact shadow */}
             <ellipse
               className="site-pet__shadow"
               cx="22"
@@ -661,31 +861,69 @@ export default function Pet() {
               rx="14"
               ry="1.8"
               fill="#2C3E50"
-              opacity="0.18"
+              opacity="0.2"
             />
-            <rect x="4" y="6" width="36" height="38" rx="5" fill="#2C3E50" />
-            <rect x="4" y="6" width="36" height="2" rx="1" fill="#FBF6EC" opacity="0.12" />
+
+            {/* Ears */}
+            <circle cx="11" cy="13" r="5" fill="#7E91C0" />
+            <circle cx="33" cy="13" r="5" fill="#7E91C0" />
+            <circle cx="11" cy="14" r="2.4" fill="#A88FA8" opacity="0.65" />
+            <circle cx="33" cy="14" r="2.4" fill="#A88FA8" opacity="0.65" />
+
+            {/* Body */}
+            <ellipse cx="22" cy="28" rx="17" ry="20" fill="#7E91C0" />
+
+            {/* Belly highlight */}
+            <ellipse cx="22" cy="35" rx="11" ry="11" fill="#A8B7D6" opacity="0.55" />
+
+            {/* Top body shine */}
+            <ellipse cx="14" cy="18" rx="5" ry="3" fill="#FBF6EC" opacity="0.22" />
+
+            {/* Eyes — wrapped in groups so each can blink from its own center */}
             <g ref={eyesRef} className="site-pet__eyes">
-              <rect className="site-pet__eye" x="14" y="22" width="4" height="5" rx="1" fill="#FBF6EC" />
-              <rect className="site-pet__eye" x="26" y="22" width="4" height="5" rx="1" fill="#FBF6EC" />
+              <g className="site-pet__eye site-pet__eye--left">
+                <circle cx="15" cy="27" r="4" fill="#FBF6EC" />
+                <circle cx="15.5" cy="27.5" r="2.5" fill="#1A1A2E" />
+                <circle cx="16" cy="26.5" r="0.9" fill="#FBF6EC" />
+              </g>
+              <g className="site-pet__eye site-pet__eye--right">
+                <circle cx="29" cy="27" r="4" fill="#FBF6EC" />
+                <circle cx="29.5" cy="27.5" r="2.5" fill="#1A1A2E" />
+                <circle cx="30" cy="26.5" r="0.9" fill="#FBF6EC" />
+              </g>
             </g>
+
+            {/* Cheeks */}
+            <ellipse cx="9" cy="33" rx="2.4" ry="1.5" fill="#E5849C" opacity="0.55" />
+            <ellipse cx="35" cy="33" rx="2.4" ry="1.5" fill="#E5849C" opacity="0.55" />
+
+            {/* Mouth */}
+            <path
+              d="M19 36 Q22 38.5 25 36"
+              stroke="#1A1A2E"
+              strokeWidth="1"
+              fill="none"
+              strokeLinecap="round"
+            />
+
+            {/* Legs */}
             <rect
               className="site-pet__leg site-pet__leg--left"
-              x="10"
-              y="42"
-              width="8"
-              height="10"
-              rx="1.5"
-              fill="#2C3E50"
+              x="14"
+              y="46"
+              width="7"
+              height="8"
+              rx="2.5"
+              fill="#7E91C0"
             />
             <rect
               className="site-pet__leg site-pet__leg--right"
-              x="26"
-              y="42"
-              width="8"
-              height="10"
-              rx="1.5"
-              fill="#2C3E50"
+              x="23"
+              y="46"
+              width="7"
+              height="8"
+              rx="2.5"
+              fill="#7E91C0"
             />
           </svg>
         </span>

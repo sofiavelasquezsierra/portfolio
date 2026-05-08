@@ -1,6 +1,6 @@
 # sofia velasquez sierra — portfolio
 
-**building ai products for health and wearables.** cmu ms biomedical engineering, aug 2026.
+**product & ml in wearables and health ai.** side projects built with ai for fun. cmu ms biomedical engineering, aug 2026.
 [live site →](https://sofiavelasquez.com) · [linkedin →](https://www.linkedin.com/in/sofia-velasquez-sierra/) · [github →](https://github.com/sofiavelasquezsierra)
 
 a portfolio site that doubles as a product demo. every interaction here is something i&apos;d want to ship in a real wearables product — onboarding that personalizes, time-aware backgrounds, weather-driven overlays, persistent state across sessions, motion-safe animations. designed, built, and iterated on by me.

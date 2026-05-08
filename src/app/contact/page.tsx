@@ -19,8 +19,8 @@ export default function ContactPage() {
               let&apos;s build <span className="wavy">something</span>.
             </h1>
             <p className="mt-2 max-w-xl text-mute text-sm">
-              full-time roles, august 2026 — pm or ml engineer building
-              ai product for health and wearables.
+              full-time roles, august 2026 — product &amp; ml in wearables
+              and health ai.
             </p>
           </div>
           <div className="flex flex-wrap gap-2 text-xs">

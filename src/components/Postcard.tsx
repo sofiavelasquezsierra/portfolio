@@ -87,6 +87,7 @@ export default function Postcard() {
         {/* Postcard */}
         <div
           ref={dropRef}
+          data-pet-perch
           className="relative rounded-3xl overflow-hidden bg-[#FBF1DD] border-2 border-ink/10 min-h-[440px]"
           style={{
             backgroundImage:
@@ -101,8 +102,8 @@ export default function Postcard() {
                 </p>
                 <p className="mt-4 text-sm text-ink/70 leading-relaxed">
                   i&apos;m looking for full-time roles starting <br />
-                  <strong>august 2026</strong> — pm or ml engineer building
-                  ai product for health and wearables.
+                  <strong>august 2026</strong> — product &amp; ml in wearables
+                  and health ai.
                 </p>
                 <p className="mt-6 text-xs uppercase tracking-[0.2em] text-ink/60">
                   from
