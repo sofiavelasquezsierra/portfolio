@@ -5,9 +5,11 @@ import Sky from "@/components/Sky";
 import CursorPicker from "@/components/CursorPicker";
 import CornerInfo from "@/components/CornerInfo";
 import { useTimeOfDay } from "@/hooks/useTimeOfDay";
+import { useIsTouch } from "@/hooks/useIsTouch";
 
 export default function LandingPage() {
   const palette = useTimeOfDay();
+  const isTouch = useIsTouch();
 
   return (
     <Sky fullscreen>
@@ -29,10 +31,12 @@ export default function LandingPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="mt-3 mb-10 text-center text-base md:text-lg opacity-90"
+          className="mt-3 mb-10 text-center text-base md:text-lg opacity-90 px-4"
           style={{ color: palette.textOnSky }}
         >
-          pick a cursor to take with you ↓
+          {isTouch
+            ? "tap a vibe to come along ↓"
+            : "pick a cursor to take with you ↓"}
         </motion.p>
 
         <CursorPicker />

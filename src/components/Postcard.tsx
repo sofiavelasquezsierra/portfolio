@@ -4,6 +4,7 @@ import Image from "next/image";
 import { motion, useDragControls } from "framer-motion";
 import { useRef, useState } from "react";
 import { countryStamps, CountryStamp } from "@/data/stamps";
+import { useIsTouch } from "@/hooks/useIsTouch";
 
 type Placed = {
   id: string;
@@ -13,7 +14,8 @@ type Placed = {
   size: number;
 };
 
-const TRAY = 160;
+const TRAY_DESKTOP = 160;
+const TRAY_MOBILE = 96;
 const PLACED = 108;
 
 const SLOT_TOP = 22;
@@ -29,9 +31,20 @@ export default function Postcard() {
   const [placed, setPlaced] = useState<Placed | null>(null);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
   const [sent, setSent] = useState(false);
+  const isTouch = useIsTouch();
 
   const leftStamps = countryStamps.slice(0, LEFT_LIMIT);
   const bottomStamps = countryStamps.slice(LEFT_LIMIT);
+
+  function placeStamp(stamp: CountryStamp) {
+    setPlaced({
+      id: `${stamp.id}-${Date.now()}`,
+      src: stamp.src,
+      alt: stamp.alt,
+      rotate: stamp.rotate ?? 0,
+      size: stamp.size ?? 1,
+    });
+  }
 
   function handleDragEnd(
     stamp: CountryStamp,
@@ -52,13 +65,7 @@ export default function Postcard() {
       return;
     }
 
-    setPlaced({
-      id: `${stamp.id}-${Date.now()}`,
-      src: stamp.src,
-      alt: stamp.alt,
-      rotate: stamp.rotate ?? 0,
-      size: stamp.size ?? 1,
-    });
+    placeStamp(stamp);
   }
 
   function send(e: React.FormEvent) {
@@ -72,15 +79,25 @@ export default function Postcard() {
     setSent(true);
   }
 
+  const stampHint = isTouch
+    ? "tap a stamp to place it on the postcard ↑"
+    : "choose a stamp & drag it onto the postcard ↑";
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Top: left column of stamps + postcard. On mobile the left column
           collapses above the postcard as a wrapping row. */}
-      <div className="grid grid-cols-1 lg:grid-cols-[180px_1fr] gap-6 lg:gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-[180px_1fr] gap-4 lg:gap-8 items-start">
         {/* Left stamp column */}
-        <div className="flex flex-row lg:flex-col flex-wrap lg:flex-nowrap gap-5 lg:gap-6 items-center lg:items-center justify-center lg:justify-start">
+        <div className="flex flex-row lg:flex-col flex-wrap lg:flex-nowrap gap-3 md:gap-5 lg:gap-6 items-center justify-center lg:justify-start">
           {leftStamps.map((s) => (
-            <DraggableStamp key={s.id} stamp={s} onEnd={handleDragEnd} />
+            <Stamp
+              key={s.id}
+              stamp={s}
+              isTouch={isTouch}
+              onTap={placeStamp}
+              onDragEnd={handleDragEnd}
+            />
           ))}
         </div>
 
@@ -88,16 +105,16 @@ export default function Postcard() {
         <div
           ref={dropRef}
           data-pet-perch
-          className="relative rounded-3xl overflow-hidden bg-[#FBF1DD] border-2 border-ink/10 min-h-[440px]"
+          className="relative rounded-3xl overflow-hidden bg-[#FBF1DD] border-2 border-ink/10 min-h-[380px] md:min-h-[440px]"
           style={{
             backgroundImage:
               "radial-gradient(circle at 20% 80%, rgba(126,145,192,0.08), transparent 40%), radial-gradient(circle at 80% 20%, rgba(168,210,234,0.10), transparent 40%)",
           }}
         >
-          <div className="p-8 md:p-10">
-            <div className="grid md:grid-cols-2 gap-8 relative">
-              <div>
-                <p className="handwritten text-3xl text-rose leading-tight">
+          <div className="p-6 md:p-10">
+            <div className="grid md:grid-cols-2 gap-6 md:gap-8 relative">
+              <div className="pr-24 md:pr-0">
+                <p className="handwritten text-2xl md:text-3xl text-rose leading-tight">
                   want to work together? <br /> drop me a note ✉
                 </p>
                 <p className="mt-4 text-sm text-ink/70 leading-relaxed">
@@ -175,10 +192,19 @@ export default function Postcard() {
                 height: PLACED,
               }}
             >
-              drag a<br />
-              stamp
-              <br />
-              here
+              {isTouch ? (
+                <>
+                  tap a<br />
+                  stamp
+                </>
+              ) : (
+                <>
+                  drag a<br />
+                  stamp
+                  <br />
+                  here
+                </>
+              )}
             </div>
           )}
 
@@ -213,25 +239,81 @@ export default function Postcard() {
 
       {/* Bottom row of stamps */}
       <div>
-        <div className="flex items-center justify-between flex-wrap gap-2 mb-5">
-          <p className="handwritten text-xl text-ink">
-            choose a stamp & drag it onto the postcard ↑
+        <div className="flex items-center justify-between flex-wrap gap-2 mb-4 md:mb-5">
+          <p className="handwritten text-lg md:text-xl text-ink">
+            {stampHint}
           </p>
           {placed && (
             <span className="inline-flex items-center gap-1.5 text-xs text-rose">
               <span className="w-1.5 h-1.5 rounded-full bg-rose" />
-              stamp placed · drag a different one to swap
+              stamp placed · {isTouch ? "tap" : "drag"} a different one to swap
             </span>
           )}
         </div>
 
-        <div className="flex flex-wrap gap-6 md:gap-8 items-center">
+        <div className="flex flex-wrap gap-3 md:gap-6 lg:gap-8 items-center justify-center md:justify-start">
           {bottomStamps.map((s) => (
-            <DraggableStamp key={s.id} stamp={s} onEnd={handleDragEnd} />
+            <Stamp
+              key={s.id}
+              stamp={s}
+              isTouch={isTouch}
+              onTap={placeStamp}
+              onDragEnd={handleDragEnd}
+            />
           ))}
         </div>
       </div>
     </div>
+  );
+}
+
+/** A stamp that drags-to-place on desktop and taps-to-place on touch. */
+function Stamp({
+  stamp,
+  isTouch,
+  onTap,
+  onDragEnd,
+}: {
+  stamp: CountryStamp;
+  isTouch: boolean;
+  onTap: (s: CountryStamp) => void;
+  onDragEnd: (s: CountryStamp, info: { point: { x: number; y: number } }) => void;
+}) {
+  if (isTouch) {
+    return <TappableStamp stamp={stamp} onTap={onTap} />;
+  }
+  return <DraggableStamp stamp={stamp} onEnd={onDragEnd} />;
+}
+
+function TappableStamp({
+  stamp,
+  onTap,
+}: {
+  stamp: CountryStamp;
+  onTap: (s: CountryStamp) => void;
+}) {
+  return (
+    <motion.button
+      type="button"
+      onClick={() => onTap(stamp)}
+      whileTap={{ scale: 0.92 }}
+      style={{
+        rotate: stamp.rotate ?? 0,
+        width: TRAY_MOBILE,
+        height: TRAY_MOBILE,
+        filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.14))",
+      }}
+      className="cursor-target relative select-none flex-shrink-0 bg-transparent border-0 p-0"
+      aria-label={`place ${stamp.alt}`}
+    >
+      <StampImage
+        src={stamp.src}
+        alt={stamp.alt}
+        country={stamp.country}
+        flag={stamp.flag}
+        size={stamp.size}
+      />
+    </motion.button>
   );
 }
 
@@ -254,8 +336,8 @@ function DraggableStamp({
       whileHover={{ scale: 1.05 }}
       style={{
         rotate: stamp.rotate ?? 0,
-        width: TRAY,
-        height: TRAY,
+        width: TRAY_DESKTOP,
+        height: TRAY_DESKTOP,
         filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.14))",
       }}
       className="cursor-target relative select-none flex-shrink-0"

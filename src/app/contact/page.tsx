@@ -11,11 +11,11 @@ export default function ContactPage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-3"
+          className="mb-5 md:mb-6 flex flex-col md:flex-row md:items-end justify-between gap-3"
         >
           <div>
             <p className="stamp">04 · contact</p>
-            <h1 className="mt-2 font-serif text-4xl md:text-6xl text-ink leading-[1.05]">
+            <h1 className="mt-2 font-serif text-3xl md:text-6xl text-ink leading-[1.05]">
               let&apos;s build <span className="wavy">something</span>.
             </h1>
             <p className="mt-2 max-w-xl text-mute text-sm">
@@ -23,10 +23,10 @@ export default function ContactPage() {
               and health ai.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2 text-xs">
+          <div className="flex flex-wrap gap-2 text-xs max-w-full overflow-hidden">
             <a
               href="mailto:svelasqu@andrew.cmu.edu"
-              className="px-3 py-1.5 rounded-full bg-ink text-white hover:bg-rose transition-colors"
+              className="px-3 py-1.5 rounded-full bg-ink text-white hover:bg-rose transition-colors truncate max-w-[220px] sm:max-w-none"
             >
               svelasqu@andrew.cmu.edu
             </a>

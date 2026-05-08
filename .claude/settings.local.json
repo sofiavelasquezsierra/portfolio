@@ -1,7 +1,13 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx next *)"
+      "Bash(npx next *)",
+      "Bash(npm install *)",
+      "Bash(curl -s -X POST http://localhost:3000/api/visit)",
+      "Read(//private/tmp/**)",
+      "Bash(xargs kill *)",
+      "Bash(curl -s -X POST http://localhost:3001/api/visit)",
+      "Bash(curl -s -X POST http://localhost:3002/api/visit)"
     ]
   }
 }
