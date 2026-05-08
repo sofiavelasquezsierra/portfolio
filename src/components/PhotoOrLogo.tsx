@@ -17,7 +17,7 @@ type Props = {
 
 /**
  * Shows a square photo if `src` loads, otherwise a standalone Logo
- * with no surrounding box / border / gradient — per Sofia's request.
+ * with no surrounding box / border / gradient 
  */
 export default function PhotoOrLogo({
   size = 96,

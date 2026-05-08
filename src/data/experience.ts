@@ -13,7 +13,7 @@ export const experience: Experience[] = [
     role: "Research Assistant",
     org: "HCII (Human-Computer Interaction Institute), CMU",
     detail: "Wearables + interaction research.",
-    logo: "/logos/cmu.png",
+    logo: "/logos/hcii.png",
   },
   {
     date: "Apr 2026 – Present",

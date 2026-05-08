@@ -25,7 +25,7 @@ export default function GalleryPage() {
             </h1>
             <p className="mt-2 max-w-xl text-mute text-sm">
               drag your cursor, click to scatter, hold to pull everything
-              toward you. lives in your browser, nothing tracked.
+              toward you. 
             </p>
           </div>
 
@@ -40,9 +40,14 @@ export default function GalleryPage() {
 
         <ParticleSandbox />
 
-        <PetPlayground />
-
-        <PetTicTacToe />
+        <div className="mt-8 flex flex-col md:flex-row gap-6">
+          <div className="flex-1">
+            <PetPlayground />
+          </div>
+          <div className="flex-1">
+            <PetTicTacToe />
+          </div>
+        </div>
       </div>
     </main>
   );

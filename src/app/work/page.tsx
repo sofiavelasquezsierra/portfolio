@@ -49,7 +49,8 @@ export default function WorkPage() {
             </h1>
             <p className="mt-2 max-w-xl text-mute text-sm md:text-base">
               product &amp; ml in wearables and health ai. side projects built
-              with ai for fun. hover any card for role, team, and timeframe.
+              with ai for fun. 
+              
             </p>
           </div>
 

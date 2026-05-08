@@ -56,7 +56,7 @@ export default function ProjectCard({ project, number, tilt = 0 }: Props) {
               {project.title}
             </h3>
             <div className="flex items-center gap-1.5 shrink-0">
-              {project.sideProject && <Tag>SIDE</Tag>}
+              {project.sideProject && <Tag>SIDE PROJECT</Tag>}
               <Tag>{status}</Tag>
             </div>
           </div>

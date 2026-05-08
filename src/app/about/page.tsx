@@ -15,8 +15,7 @@ const levelColor: Record<string, string> = {
   learning: "#E5C57E",
 };
 
-// Three placeholder polaroids underneath the hero.
-// Drop /photos/me-1.jpg etc. to replace.
+
 const HERO_PHOTOS = [
   { src: "/photos/me-1.jpg", caption: "✦ a moment", rotate: -4 },
   { src: "/photos/me-2.jpg", caption: "✿ another", rotate: 3 },
