@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans, Fraunces, Caveat } from "next/font/google";
-import "./globals.css";
+//import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
 import CustomCursor from "@/components/CustomCursor";
