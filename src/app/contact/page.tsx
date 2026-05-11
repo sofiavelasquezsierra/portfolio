@@ -39,7 +39,7 @@ export default function ContactPage() {
               github ↗
             </a>
             <a
-              href="https://www.linkedin.com/in/sofia-velasquez-sierra/"
+              href="https://www.linkedin.com/in/sofia-velasquez/"
               target="_blank"
               rel="noreferrer"
               className="px-3 py-1.5 rounded-full border border-ink/15 text-ink hover:border-rose hover:text-rose transition-colors"

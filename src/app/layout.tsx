@@ -27,7 +27,7 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
-  title: "Sofia Velasquez Sierra — Product & ML in Wearables / Health AI",
+  title: "Sofia Velasquez Sierra",
   description:
     "Sofia Velasquez Sierra — product and ML in wearables and health AI. Side projects built with AI for fun. CMU MS Biomedical Engineering, Aug 2026.",
 };

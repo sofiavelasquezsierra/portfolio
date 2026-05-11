@@ -80,7 +80,7 @@ export default function Sidebar() {
             </svg>
           </SocialLink>
           <SocialLink
-            href="https://www.linkedin.com/in/sofia-velasquez-sierra/"
+            href="https://www.linkedin.com/in/sofia-velasquez/"
             label="LinkedIn"
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">

@@ -232,7 +232,7 @@ export const projects: Project[] = [
     metrics: "8× compression · 43× power reduction · 56% bias reduction",
     tags: ["PyTorch", "FPGA", "LLM", "Responsible AI"],
     reportUrl:
-      "https://drive.google.com/file/d/1P1sH-5KYsKo7ho5Hpou_4GErsYZcyEit/view?usp=sharing",
+      "https://drive.google.com/file/d/1fR2bXgjVwXstJf0-KpICgG9OVb1JLaes/view?usp=sharing",
     status: "RESEARCH",
     role: "Contributor — quantization + bias eval",
     duration: "1 semester",
