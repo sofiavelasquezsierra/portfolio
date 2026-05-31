@@ -31,6 +31,7 @@ export default function CaseStudyView({
           {/* ── Hero ─────────────────────────────────────────────────── */}
           <HeroBlock
             heroImage={project.heroImage}
+            heroVideo={project.heroVideo}
             fallbackColor={project.cover.color}
             fallbackEmoji={project.cover.emoji}
             title={project.title}
@@ -49,7 +50,7 @@ export default function CaseStudyView({
           </h1>
 
           {/* ── Intro ────────────────────────────────────────────────── */}
-          <p className="mt-3 max-w-3xl text-ink/80 text-base md:text-lg leading-relaxed">
+          <p className="mt-3 text-ink/80 text-base md:text-lg leading-relaxed">
             <RichText text={project.blurb} />
           </p>
 
@@ -114,7 +115,7 @@ export default function CaseStudyView({
           {/* ── Body ─────────────────────────────────────────────────── */}
           <section id="overview" className="mt-14 scroll-mt-28">
             <SectionLabel>the problem</SectionLabel>
-            <p className="text-2xl md:text-3xl text-ink leading-relaxed font-serif italic max-w-4xl">
+            <p className="text-2xl md:text-3xl text-ink leading-relaxed font-serif italic">
               {project.problem}
             </p>
           </section>
@@ -126,7 +127,7 @@ export default function CaseStudyView({
               className="mt-14 scroll-mt-28"
             >
               <SectionLabel>{s.heading}</SectionLabel>
-              <p className="max-w-3xl text-ink/85 text-lg leading-relaxed whitespace-pre-line">
+              <p className="text-ink/85 text-lg leading-relaxed whitespace-pre-line">
                 <RichText text={s.body} />
               </p>
               {s.screenshot && (
@@ -168,7 +169,7 @@ export default function CaseStudyView({
           {project.outcomes && project.outcomes.length > 0 && (
             <section id="outcomes" className="mt-14 scroll-mt-28">
               <SectionLabel>outcomes</SectionLabel>
-              <ul className="space-y-2 max-w-3xl">
+              <ul className="space-y-2">
                 {project.outcomes.map((o, i) => (
                   <li
                     key={i}
@@ -284,21 +285,45 @@ function RichText({ text }: { text: string }) {
   );
 }
 
-/** Hero block: image when provided, otherwise the colored emoji block. */
+/** Hero block: looping video if provided, else image, else the colored emoji
+ *  block. If the video fails to load (e.g. not exported yet) it falls back to
+ *  the image. */
 function HeroBlock({
   heroImage,
+  heroVideo,
   fallbackColor,
   fallbackEmoji,
   title,
 }: {
   heroImage?: string;
+  heroVideo?: string;
   fallbackColor: string;
   fallbackEmoji: string;
   title: string;
 }) {
-  const [errored, setErrored] = useState(false);
+  const [imgErrored, setImgErrored] = useState(false);
+  const [videoErrored, setVideoErrored] = useState(false);
 
-  if (heroImage && !errored) {
+  if (heroVideo && !videoErrored) {
+    return (
+      <div className="relative rounded-3xl overflow-hidden h-48 md:h-64 mb-5 border border-ink/10">
+        <video
+          className="absolute inset-0 w-full h-full object-cover"
+          poster={heroImage}
+          autoPlay
+          loop
+          muted
+          playsInline
+          preload="metadata"
+          onError={() => setVideoErrored(true)}
+        >
+          <source src={heroVideo} type="video/mp4" />
+        </video>
+      </div>
+    );
+  }
+
+  if (heroImage && !imgErrored) {
     return (
       <div className="relative rounded-3xl overflow-hidden h-48 md:h-64 mb-5 border border-ink/10">
         <Image
@@ -308,7 +333,7 @@ function HeroBlock({
           sizes="(max-width: 1024px) 100vw, 1200px"
           className="object-cover"
           priority
-          onError={() => setErrored(true)}
+          onError={() => setImgErrored(true)}
         />
       </div>
     );
