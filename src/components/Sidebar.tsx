@@ -19,6 +19,8 @@ export default function Sidebar() {
   const picked = getCursor(cursor);
 
   if (pathname === "/") return null;
+  // Case-study detail pages render their own CaseStudySidebar in this rail.
+  if (/^\/work\/[^/]+$/.test(pathname)) return null;
 
   return (
     <aside className="hidden lg:flex fixed top-0 left-0 bottom-0 w-[280px] xl:w-[320px] z-30 flex-col p-6 xl:p-8 border-r border-ink/10 bg-cream/95 backdrop-blur-md">

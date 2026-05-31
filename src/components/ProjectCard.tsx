@@ -42,7 +42,7 @@ export default function ProjectCard({ project, number, tilt = 0 }: Props) {
         style={{ height: 188, background: project.cover.color }}
       >
         <CardMedia
-          heroImage={project.heroImage}
+          heroImage={project.cardImage ?? project.heroImage}
           fallbackColor={project.cover.color}
           fallbackEmoji={project.cover.emoji}
           title={project.title}

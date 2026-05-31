@@ -3,6 +3,7 @@ import { DM_Sans, Fraunces, Caveat } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Sidebar from "@/components/Sidebar";
+import CaseStudySidebarMount from "@/components/CaseStudySidebarMount";
 import CustomCursor from "@/components/CustomCursor";
 import LayoutShell from "@/components/LayoutShell";
 import { Analytics } from "@vercel/analytics/next";
@@ -46,6 +47,7 @@ export default function RootLayout({
         <CustomCursor />
         <Navbar />
         <Sidebar />
+        <CaseStudySidebarMount />
         <LayoutShell>{children}</LayoutShell>
         <Analytics />
       </body>

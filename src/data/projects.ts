@@ -55,6 +55,8 @@ export type Project = {
   outcomes?: string[];
   /** Optional hero image rendered at the top of the case study (replaces emoji block). */
   heroImage?: string;
+  /** Optional thumbnail shown on the /work index card. Falls back to heroImage. */
+  cardImage?: string;
   /** Inline screenshots rendered as a gallery after the case study sections. */
   screenshots?: Screenshot[];
 };
@@ -67,6 +69,7 @@ export const projects: Project[] = [
     category: "ai",
     year: "2025",
     cover: { color: "#FFD6C2", emoji: "🤖" },
+    cardImage: "/projects/agenttrace/card.png",
     problem:
       "Teams deploying AI agents have no systematic way to know if their agent behaves as designed — before real customers find out it doesn't.",
     blurb:
@@ -122,6 +125,7 @@ export const projects: Project[] = [
     category: "ai",
     year: "2025",
     cover: { color: "#C8D5C0", emoji: "🛍️" },
+    cardImage: "/projects/merchantpulse/card.png",
     problem:
       "Merchants have hundreds of reviews but no fast way to turn them into product decisions.",
     blurb:
@@ -163,6 +167,7 @@ export const projects: Project[] = [
     category: "ai",
     year: "2024",
     cover: { color: "#D7CDEB", emoji: "🎓" },
+    cardImage: "/projects/rof/card.png",
     problem:
       "Club institutional knowledge disappears when leadership graduates.",
     blurb:
@@ -196,6 +201,7 @@ export const projects: Project[] = [
     category: "research",
     year: "2025",
     cover: { color: "#A8D2EA", emoji: "🧠" },
+    cardImage: "/projects/bci-decoder/card.png",
     problem:
       "Off-the-shelf BCI decoders plateau at low accuracy on noisy real-world EEG.",
     blurb:
@@ -243,6 +249,7 @@ export const projects: Project[] = [
     category: "research",
     year: "2025",
     cover: { color: "#C8D5C0", emoji: "🦙" },
+    cardImage: "/projects/greenllama/card.png",
     problem:
       "Running LLMs on edge devices is power-hungry, and compression often degrades fairness in non-obvious ways.",
     blurb:
@@ -281,6 +288,7 @@ export const projects: Project[] = [
     category: "engineering",
     year: "2024",
     cover: { color: "#F5C6CB", emoji: "🦾" },
+    cardImage: "/projects/exoskeleton/card.png",
     problem:
       "Tremor makes everyday tasks like drinking from a cup difficult for Parkinson's patients.",
     blurb:
@@ -311,6 +319,7 @@ export const projects: Project[] = [
     category: "engineering",
     year: "2023",
     cover: { color: "#FCE9B6", emoji: "🦺" },
+    cardImage: "/projects/sensing-vest/card.png",
     problem:
       "Most wearable gesture systems fail when sensor placement varies between users.",
     blurb:
@@ -331,6 +340,7 @@ export const projects: Project[] = [
     category: "engineering",
     year: "2023",
     cover: { color: "#D7CDEB", emoji: "🎛️" },
+    cardImage: "/projects/gesture-synth/card.png",
     heroImage: "/projects/gesture-synth/hero.png",
     problem:
       "Kids zone out the moment STEM stops being physical. We needed an instrument that taught sound and motion through play, not slides.",
@@ -342,6 +352,7 @@ export const projects: Project[] = [
     role: "Product lead · embedded engineer (team of 4)",
     duration: "1 semester · McGill ECSE 444",
     team: "4 engineers",
+    githubUrl: "https://github.com/sofiavelasquezsierra/melody-motionbox",
     stack: [
       "Embedded C",
       "STM32L4 HAL",
