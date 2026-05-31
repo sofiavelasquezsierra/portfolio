@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import { useState } from "react";
 import { Project } from "@/data/projects";
 
 type Props = {
@@ -39,12 +41,12 @@ export default function ProjectCard({ project, number, tilt = 0 }: Props) {
         className="relative w-full rounded-[12px] overflow-hidden mt-1.5"
         style={{ height: 188, background: project.cover.color }}
       >
-        <div
-          className="index-card__media absolute inset-0 flex items-center justify-center text-[88px] leading-none"
-          style={{ background: project.cover.color }}
-        >
-          <span>{project.cover.emoji}</span>
-        </div>
+        <CardMedia
+          heroImage={project.heroImage}
+          fallbackColor={project.cover.color}
+          fallbackEmoji={project.cover.emoji}
+          title={project.title}
+        />
         <div className="index-card__sheen absolute inset-0 pointer-events-none" />
       </div>
 
@@ -82,6 +84,46 @@ export default function ProjectCard({ project, number, tilt = 0 }: Props) {
         </div>
       </div>
     </Link>
+  );
+}
+
+/** Card thumbnail: if a heroImage is provided, fill the frame edge-to-edge.
+ *  Otherwise fall back to the colored emoji block. */
+function CardMedia({
+  heroImage,
+  fallbackColor,
+  fallbackEmoji,
+  title,
+}: {
+  heroImage?: string;
+  fallbackColor: string;
+  fallbackEmoji: string;
+  title: string;
+}) {
+  const [errored, setErrored] = useState(false);
+
+  if (heroImage && !errored) {
+    return (
+      <div className="index-card__media absolute inset-0">
+        <Image
+          src={heroImage}
+          alt={title}
+          fill
+          sizes="(max-width: 1024px) 50vw, 400px"
+          className="object-cover"
+          onError={() => setErrored(true)}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="index-card__media absolute inset-0 flex items-center justify-center text-[88px] leading-none"
+      style={{ background: fallbackColor }}
+    >
+      <span>{fallbackEmoji}</span>
+    </div>
   );
 }
 

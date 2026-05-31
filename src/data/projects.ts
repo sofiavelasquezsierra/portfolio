@@ -1,8 +1,22 @@
 export type ProjectCategory = "ai" | "research" | "engineering";
 
+export type Screenshot = {
+  /** Path under /public, e.g. "/projects/gesture-synth/hero.png" */
+  src: string;
+  /** Short caption shown under the image. */
+  caption: string;
+  /** Accessibility alt text. Defaults to caption if omitted. */
+  alt?: string;
+  /** Aspect ratio hint for the placeholder box, e.g. "16/9", "4/3", "1/1". */
+  aspect?: string;
+};
+
 export type CaseStudySection = {
   heading: string;
+  /** Supports inline emphasis with **double asterisks** → renders <strong>. */
   body: string;
+  /** Optional screenshot rendered immediately after this section's body. */
+  screenshot?: Screenshot;
 };
 
 export type ProjectStatus =
@@ -39,6 +53,10 @@ export type Project = {
   caseStudy?: CaseStudySection[];
   keyDecisions?: { title: string; body: string }[];
   outcomes?: string[];
+  /** Optional hero image rendered at the top of the case study (replaces emoji block). */
+  heroImage?: string;
+  /** Inline screenshots rendered as a gallery after the case study sections. */
+  screenshots?: Screenshot[];
 };
 
 export const projects: Project[] = [
@@ -308,23 +326,93 @@ export const projects: Project[] = [
   },
   {
     slug: "gesture-synth",
-    title: "Gesture Synthesizer",
-    subtitle: "Real-time 3D gesture-controlled audio synth",
+    title: "My Melody MotionBox",
+    subtitle: "A handheld synth that turns kids' gestures into sound",
     category: "engineering",
     year: "2023",
     cover: { color: "#D7CDEB", emoji: "🎛️" },
+    heroImage: "/projects/gesture-synth/hero.png",
     problem:
-      "Embedded gesture inputs are usually slow or coarse — fine for menus, useless for music.",
+      "Kids zone out the moment STEM stops being physical. We needed an instrument that taught sound and motion through play, not slides.",
     blurb:
-      "Real-time 3D gesture recognition on STM32 driving a custom audio synthesizer.",
-    metrics: "Real-time on STM32 · sub-frame latency",
-    tags: ["C++", "RTOS", "Embedded", "STM32"],
+      "STM32-based handheld toy that maps gyroscope motion to real-time sine-wave audio, with two-channel stereo feedback so every tilt has a sound.",
+    metrics: "Two-channel real-time audio · 4 RTOS threads · LSM6DSL gyroscope",
+    tags: ["Product", "Embedded C", "STM32", "RTOS"],
     status: "SHIPPED",
-    role: "Sole builder",
-    duration: "Course project",
-    team: "Solo",
-    stack: ["C++", "FreeRTOS", "STM32 HAL"],
-    outcomes: ["Live demo with audible, expressive gesture-to-tone mapping"],
+    role: "Product lead · embedded engineer (team of 4)",
+    duration: "1 semester · McGill ECSE 444",
+    team: "4 engineers",
+    stack: [
+      "Embedded C",
+      "STM32L4 HAL",
+      "CMSIS-DSP",
+      "FreeRTOS (CMSIS-OS)",
+      "LSM6DSL (I2C)",
+      "DAC + DMA",
+      "UART",
+    ],
+    caseStudy: [
+      {
+        heading: "Who it's for",
+        body: "**Kids aged 6–10** learning STEM concepts at home or in a classroom. The blocker we kept hearing from parents and teachers wasn't curiosity — kids have plenty of that — it was **the gap between abstract physics** (sound waves, frequency, motion) **and anything they could touch**. So we built an instrument: pick it up, tilt it, hear what changes. **The lesson is inside the toy.**",
+        screenshot: {
+          src: "/projects/gesture-synth/in-hand.jpg",
+          caption: "In hand. The form factor was deliberately small enough for a child's grip.",
+          aspect: "4/3",
+        },
+      },
+      {
+        heading: "Product bets",
+        body: "Three calls shaped the build:\n\n1. **Sound first, screens never.** A screen would have pulled attention away from the body. UART output goes to a debug console for parents/teachers, not the kid.\n\n2. **Two channels, not one.** A single speaker collapses X and Y motion into a muddy tone. Routing X and Y to separate channels (stereo) gives each axis its own voice, so kids physically hear that **motion has dimensions**.\n\n3. **Continuous mapping, not buttons.** Frequency scales with angular velocity instead of triggering preset notes. Slow tilt = low hum, fast shake = high pitch. The cause-and-effect is **unmistakable in the first 5 seconds**.",
+      },
+      {
+        heading: "How it works",
+        body: "An **LSM6DSL 6-axis IMU** (over I2C) samples gyroscope data at ~1 kHz. A `ReadSensorTask` thread updates a shared state struct with the latest X/Y angular velocity. Two generator threads — one per axis — gate on motion magnitude (`|ω| > 10000 dps` raw), then synthesize a sine wave whose period is modulated by the angular speed:\n\n    samples_per_cycle = base / (1 + (|ω| − 10000) / 15000)\n\nThe sine table is built with **CMSIS-DSP's `arm_sin_f32`** (single-cycle fixed-point on Cortex-M4), scaled to the 12-bit DAC range, and streamed out via **DMA** so the CPU stays free to read the next sample. X and Y are routed to `DAC_CHANNEL_1` and `DAC_CHANNEL_2` — **different speakers, different ears**. A fourth `PrintTask` thread emits UART debug messages so adults can verify the device is working.",
+        screenshot: {
+          src: "/projects/gesture-synth/architecture.png",
+          caption: "System diagram: IMU → RTOS threads → CMSIS-DSP sine table → DAC + DMA → stereo speakers.",
+          aspect: "16/9",
+        },
+      },
+      {
+        heading: "Engineering decisions worth calling out",
+        body: "• **Threading model:** 4 cooperative RTOS threads sharing state through a single sensor struct. Cheaper than a message queue at this scale, and the read-mostly access pattern means we don't need locks if the producer is single-writer.\n\n• **DMA-driven audio:** Blocking the CPU on each sample would have starved the gyro read loop. DMA frees the M4 to keep sampling motion while audio plays out.\n\n• **Dynamic sample buffers:** Sample count varies with frequency, so we malloc/free per cycle. **Not ideal for production** (fragmentation risk on long sessions) — a fixed-size ring buffer is item #1 on the rewrite list.\n\n• **Threshold gating:** The ±10000 dps deadband stops the toy from droning when it sits on a table. Tuned empirically with a 7-year-old test subject.",
+        screenshot: {
+          src: "/projects/gesture-synth/device.jpg",
+          caption: "The MotionBox prototype — STM32L4 dev board, breadboarded gyro, dual speakers.",
+          aspect: "4/3",
+        },
+      },
+      {
+        heading: "What I'd ship next",
+        body: "If this became a real product, the **v2 backlog** I'd push for:\n\n1. **Velocity-to-timbre, not just pitch.** Add harmonics so fast shakes sound 'brighter,' not just higher.\n\n2. **Onboard LED ring.** The visual feedback currently lives in a UART console no kid will ever see — move it onto the device with an addressable LED strip.\n\n3. **Accelerometer fusion.** Gyroscope alone misses translation (kid swinging it through the air). Fusing accel + gyro unlocks gesture vocabularies like 'cast' and 'swipe.'\n\n4. **Curriculum sleeve.** The instrument is the hook; the real product is the 4-page activity guide that turns it into a 30-minute lesson on waves.",
+        screenshot: {
+          src: "/projects/gesture-synth/uart-output.png",
+          caption: "Today's visual feedback — UART debug stream. Tomorrow's: an onboard LED ring.",
+          aspect: "16/9",
+        },
+      },
+    ],
+    keyDecisions: [
+      {
+        title: "Build an instrument, not a screen",
+        body: "Every competing STEM toy we looked at had a display. We deliberately removed that affordance — the kid's attention stays on the device in their hands and the sound coming out of it.",
+      },
+      {
+        title: "Stereo channels for spatial learning",
+        body: "Splitting X and Y motion across two DAC channels added hardware complexity but turned the toy into an actual lesson about axes. It's the difference between 'a noise' and 'this side does this, that side does that.'",
+      },
+      {
+        title: "Continuous mapping over presets",
+        body: "Preset notes would have made it a button box. Mapping angular velocity directly to frequency means kids learn that physics is continuous — small change in, small change out.",
+      },
+    ],
+    outcomes: [
+      "Working prototype demoed end-of-semester to faculty and TAs",
+      "Two-axis stereo audio with sub-perceptual (<20 ms) gesture-to-sound latency",
+      "4 RTOS threads coordinating sensor read, X/Y synthesis, and debug output without lock contention",
+      "Top-grade group project (ECSE 444, McGill)",
+    ],
   },
 ];
 

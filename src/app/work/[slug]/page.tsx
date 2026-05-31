@@ -1,9 +1,11 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { notFound, useParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { getProject, projects } from "@/data/projects";
+import { useState } from "react";
+import { getProject, projects, Screenshot } from "@/data/projects";
 
 export default function CaseStudyPage() {
   const params = useParams<{ slug: string }>();
@@ -29,12 +31,12 @@ export default function CaseStudyPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <div
-            className="rounded-3xl h-56 flex items-center justify-center text-7xl mb-8"
-            style={{ background: project.cover.color }}
-          >
-            <span>{project.cover.emoji}</span>
-          </div>
+          <HeroBlock
+            heroImage={project.heroImage}
+            fallbackColor={project.cover.color}
+            fallbackEmoji={project.cover.emoji}
+            title={project.title}
+          />
 
           <p className="stamp">{project.category} · {project.year}</p>
           <h1 className="mt-4 font-serif text-5xl md:text-6xl text-ink leading-[1.05]">
@@ -82,10 +84,28 @@ export default function CaseStudyPage() {
               {s.heading}
             </h2>
             <p className="text-ink/85 text-lg leading-relaxed whitespace-pre-line">
-              {s.body}
+              <RichText text={s.body} />
             </p>
+            {s.screenshot && (
+              <div className="mt-6">
+                <ScreenshotCard shot={s.screenshot} />
+              </div>
+            )}
           </section>
         ))}
+
+        {project.screenshots && project.screenshots.length > 0 && (
+          <section className="mt-12">
+            <h2 className="text-xs uppercase tracking-[0.2em] text-coral mb-4">
+              more
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {project.screenshots.map((s, i) => (
+                <ScreenshotCard key={i} shot={s} />
+              ))}
+            </div>
+          </section>
+        )}
 
         {project.keyDecisions && project.keyDecisions.length > 0 && (
           <section className="mt-12">
@@ -182,6 +202,37 @@ export default function CaseStudyPage() {
   );
 }
 
+/** Lightweight inline formatter — supports **bold** and `code`. Newlines
+ *  are preserved by the parent's whitespace-pre-line. */
+function RichText({ text }: { text: string }) {
+  // Split on **bold** and `code` markers, preserving the markers themselves.
+  const parts = text.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+  return (
+    <>
+      {parts.map((p, i) => {
+        if (p.startsWith("**") && p.endsWith("**")) {
+          return (
+            <strong key={i} className="text-ink font-semibold">
+              {p.slice(2, -2)}
+            </strong>
+          );
+        }
+        if (p.startsWith("`") && p.endsWith("`")) {
+          return (
+            <code
+              key={i}
+              className="px-1.5 py-0.5 rounded bg-codebg text-ink/85 text-[0.92em] font-mono"
+            >
+              {p.slice(1, -1)}
+            </code>
+          );
+        }
+        return <span key={i}>{p}</span>;
+      })}
+    </>
+  );
+}
+
 function Meta({ label, value }: { label: string; value: string }) {
   return (
     <div>
@@ -190,5 +241,94 @@ function Meta({ label, value }: { label: string; value: string }) {
       </p>
       <p className="mt-0.5 text-ink">{value}</p>
     </div>
+  );
+}
+
+/** Hero block: renders the image if `heroImage` is provided and loads, otherwise
+ *  falls back to the project's colored emoji block. */
+function HeroBlock({
+  heroImage,
+  fallbackColor,
+  fallbackEmoji,
+  title,
+}: {
+  heroImage?: string;
+  fallbackColor: string;
+  fallbackEmoji: string;
+  title: string;
+}) {
+  const [errored, setErrored] = useState(false);
+
+  if (heroImage && !errored) {
+    return (
+      <div className="relative rounded-3xl overflow-hidden h-56 md:h-80 mb-8">
+        {/* object-cover fills the frame edge-to-edge, no background showing.
+            A subtle scale pulse keeps it alive without cropping the edges. */}
+        <Image
+          src={heroImage}
+          alt={title}
+          fill
+          sizes="(max-width: 768px) 100vw, 768px"
+          className="object-cover"
+          style={{ animation: "heroBreathe 6s ease-in-out infinite" }}
+          priority
+          onError={() => setErrored(true)}
+        />
+        <style>{`
+          @keyframes heroBreathe {
+            0%, 100% { transform: scale(1); }
+            50%       { transform: scale(1.025); }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="rounded-3xl h-56 flex items-center justify-center text-7xl mb-8"
+      style={{ background: fallbackColor }}
+    >
+      <span>{fallbackEmoji}</span>
+    </div>
+  );
+}
+
+/** Single screenshot card with a graceful placeholder until the file exists. */
+function ScreenshotCard({ shot }: { shot: Screenshot }) {
+  const [errored, setErrored] = useState(false);
+  const aspect = shot.aspect ?? "4/3";
+
+  return (
+    <figure className="space-y-2">
+      <div
+        className="relative w-full rounded-2xl overflow-hidden bg-cream border border-ink/10"
+        style={{ aspectRatio: aspect }}
+      >
+        {!errored ? (
+          <Image
+            src={shot.src}
+            alt={shot.alt ?? shot.caption}
+            fill
+            sizes="(max-width: 768px) 100vw, 400px"
+            className="object-cover"
+            onError={() => setErrored(true)}
+          />
+        ) : (
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-mute/60 text-center px-4">
+            <p className="text-3xl">🖼️</p>
+            <p className="mt-2 text-[10px] uppercase tracking-[0.2em]">
+              drop image at
+            </p>
+            <code className="mt-1 text-[10px] text-ink/50 break-all">
+              {shot.src}
+            </code>
+          </div>
+        )}
+      </div>
+      <figcaption className="text-xs text-mute leading-relaxed">
+        {shot.caption}
+      </figcaption>
+    </figure>
   );
 }
