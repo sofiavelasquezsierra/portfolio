@@ -21,9 +21,14 @@ export type TocSection = {
  */
 export default function CaseStudySidebar({
   sections,
+  accent = "#7E91C0",
 }: {
   sections: TocSection[];
+  accent?: string;
 }) {
+  // Soft fill for the sliding pill, and a darker readable variant for hovers.
+  const accentPill = `color-mix(in srgb, ${accent} 38%, transparent)`;
+  const accentInk = `color-mix(in srgb, ${accent} 45%, #2C3E50)`;
   const [activeId, setActiveId] = useState(sections[0]?.id ?? "");
   const [hoverId, setHoverId] = useState<string | null>(null);
   const [open, setOpen] = useState(false);
@@ -151,7 +156,7 @@ export default function CaseStudySidebar({
       {/* Top: back to all work */}
       <Link
         href="/work"
-        className="group flex items-center gap-2 w-fit font-mono text-xs uppercase tracking-[0.12em] text-ink transition-colors hover:text-rose"
+        className="group flex items-center gap-2 w-fit font-mono text-xs uppercase tracking-[0.12em] text-ink transition-colors hover:text-[color:var(--accent-ink)]"
       >
         <span className="inline-block transition-transform group-hover:-translate-x-1">
           ←
@@ -173,7 +178,7 @@ export default function CaseStudySidebar({
               height: pill.height,
               transform: `translateY(${pill.top}px)`,
               opacity: pill.show ? 1 : 0,
-              background: "rgba(126,145,192,0.22)",
+              background: accentPill,
               transition: reducedRef.current
                 ? "none"
                 : "transform 280ms cubic-bezier(0.22,1,0.36,1), height 280ms cubic-bezier(0.22,1,0.36,1), opacity 200ms ease",
@@ -223,7 +228,10 @@ export default function CaseStudySidebar({
   return (
     <>
       {/* Desktop fixed rail */}
-      <aside className="hidden lg:flex fixed top-0 left-0 bottom-0 w-[280px] xl:w-[320px] z-30 flex-col p-6 xl:p-8 border-r border-ink/10 bg-cream/95 backdrop-blur-md overflow-y-auto">
+      <aside
+        className="hidden lg:flex fixed top-0 left-0 bottom-0 w-[280px] xl:w-[320px] z-30 flex-col p-6 xl:p-8 border-r border-ink/10 bg-cream/95 backdrop-blur-md overflow-y-auto"
+        style={{ "--accent-ink": accentInk } as React.CSSProperties}
+      >
         {inner}
       </aside>
 
@@ -259,6 +267,7 @@ export default function CaseStudySidebar({
         className={`lg:hidden fixed inset-y-0 left-0 z-50 w-[280px] max-w-[85vw] flex flex-col p-6 bg-cream overflow-y-auto shadow-[2px_0_28px_-8px_rgba(36,36,36,0.2)] transition-transform duration-[280ms] ease-[cubic-bezier(0.22,1,0.36,1)] ${
           open ? "translate-x-0" : "-translate-x-full"
         }`}
+        style={{ "--accent-ink": accentInk } as React.CSSProperties}
       >
         <button
           type="button"

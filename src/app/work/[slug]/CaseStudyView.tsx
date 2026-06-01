@@ -23,10 +23,22 @@ export default function CaseStudyView({
   next: Project;
 }) {
   const status = project.status ?? defaultStatus(project.category);
+  const accent = project.accent ?? "#7E91C0";
 
   return (
     <>
-      <main id="top" className="relative min-h-screen pt-16 lg:pt-20 pb-20">
+      <main
+        id="top"
+        className="relative min-h-screen pt-16 lg:pt-20 pb-20"
+        style={
+          {
+            // Raw accent = light pastel fill; accent-ink = a darkened, readable
+            // version of the same hue for text/marks on the cream background.
+            "--accent": accent,
+            "--accent-ink": `color-mix(in srgb, ${accent} 45%, #2C3E50)`,
+          } as React.CSSProperties
+        }
+      >
         <div className="w-full section-padding">
           {/* ── Hero ─────────────────────────────────────────────────── */}
           <HeroBlock
@@ -45,7 +57,7 @@ export default function CaseStudyView({
 
           {/* ── Title ────────────────────────────────────────────────── */}
           <h1 className="mt-3 flex items-center gap-2.5 font-serif text-3xl md:text-4xl text-ink leading-[1.1]">
-            <Logo size={32} className="shrink-0" />
+            <Logo size={32} className="shrink-0" color="var(--accent-ink)" />
             <span>{project.title}</span>
           </h1>
 
@@ -60,7 +72,7 @@ export default function CaseStudyView({
               href={project.liveUrl}
               target="_blank"
               rel="noreferrer"
-              className="group mt-5 flex w-full items-center justify-center gap-2 rounded-full border border-ink/15 bg-cream py-3 text-ink hover:border-rose hover:text-rose transition-colors"
+              className="group mt-5 flex w-full items-center justify-center gap-2 rounded-full border border-ink/15 bg-cream py-3 text-ink hover:border-[color:var(--accent-ink)] hover:text-[color:var(--accent-ink)] transition-colors"
             >
               <span className="text-sm">visit {project.title}</span>
               <span className="transition-transform group-hover:translate-x-1">
@@ -75,7 +87,7 @@ export default function CaseStudyView({
                   href={project.githubUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex-1 min-w-[140px] flex items-center justify-center gap-2 rounded-full border border-ink/15 bg-cream py-2.5 text-sm text-ink hover:border-rose hover:text-rose transition-colors"
+                  className="flex-1 min-w-[140px] flex items-center justify-center gap-2 rounded-full border border-ink/15 bg-cream py-2.5 text-sm text-ink hover:border-[color:var(--accent-ink)] hover:text-[color:var(--accent-ink)] transition-colors"
                 >
                   github ↗
                 </a>
@@ -85,7 +97,7 @@ export default function CaseStudyView({
                   href={project.reportUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex-1 min-w-[140px] flex items-center justify-center gap-2 rounded-full border border-ink/15 bg-cream py-2.5 text-sm text-ink hover:border-rose hover:text-rose transition-colors"
+                  className="flex-1 min-w-[140px] flex items-center justify-center gap-2 rounded-full border border-ink/15 bg-cream py-2.5 text-sm text-ink hover:border-[color:var(--accent-ink)] hover:text-[color:var(--accent-ink)] transition-colors"
                 >
                   report ↗
                 </a>
@@ -94,7 +106,10 @@ export default function CaseStudyView({
           )}
 
           {/* ── Meta bar ─────────────────────────────────────────────── */}
-          <div className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-5 rounded-2xl bg-rose p-5 md:p-6 text-cream">
+          <div
+            className="mt-5 grid grid-cols-2 md:grid-cols-4 gap-x-8 gap-y-5 rounded-2xl p-5 md:p-6 text-ink"
+            style={{ background: "var(--accent)" }}
+          >
             {project.role && (
               <MetaCol label="Role" lines={splitList(project.role)} />
             )}
@@ -156,7 +171,8 @@ export default function CaseStudyView({
                 {project.keyDecisions.map((d, i) => (
                   <div
                     key={i}
-                    className="rounded-2xl border border-ink/10 bg-cream p-6 border-l-[3px] border-l-rose"
+                    className="rounded-2xl border border-ink/10 bg-cream p-6 border-l-[3px]"
+                    style={{ borderLeftColor: "var(--accent-ink)" }}
                   >
                     <p className="font-serif text-2xl text-ink">{d.title}</p>
                     <p className="mt-2 text-ink/80 leading-relaxed">{d.body}</p>
@@ -175,7 +191,10 @@ export default function CaseStudyView({
                     key={i}
                     className="flex items-start gap-3 text-ink/85 text-lg"
                   >
-                    <span className="mt-2.5 inline-block w-1.5 h-1.5 rounded-full bg-rose shrink-0" />
+                    <span
+                      className="mt-2.5 inline-block w-1.5 h-1.5 rounded-full shrink-0"
+                      style={{ background: "var(--accent-ink)" }}
+                    />
                     {o}
                   </li>
                 ))}
@@ -191,12 +210,15 @@ export default function CaseStudyView({
               className="group flex items-center justify-between gap-4"
             >
               <div>
-                <p className="font-serif text-3xl text-ink group-hover:text-rose transition-colors">
+                <p className="font-serif text-3xl text-ink transition-colors group-hover:text-[color:var(--accent-ink)]">
                   {next.title}
                 </p>
                 <p className="text-sm text-mute">{next.subtitle}</p>
               </div>
-              <span className="text-2xl text-rose group-hover:translate-x-1 transition-transform">
+              <span
+                className="text-2xl group-hover:translate-x-1 transition-transform"
+                style={{ color: "var(--accent-ink)" }}
+              >
                 →
               </span>
             </Link>
@@ -233,7 +255,10 @@ function Pill({ children }: { children: React.ReactNode }) {
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <h2 className="text-xs uppercase tracking-[0.2em] text-rose mb-4">
+    <h2
+      className="text-xs uppercase tracking-[0.2em] mb-4"
+      style={{ color: "var(--accent-ink)" }}
+    >
       {children}
     </h2>
   );
@@ -242,12 +267,12 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 function MetaCol({ label, lines }: { label: string; lines: string[] }) {
   return (
     <div>
-      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-cream/70">
+      <p className="font-mono text-[11px] uppercase tracking-[0.16em] text-ink/55">
         {label}
       </p>
       <div className="mt-2 space-y-0.5">
         {lines.map((l, i) => (
-          <p key={i} className="text-cream leading-snug">
+          <p key={i} className="text-ink leading-snug">
             {l}
           </p>
         ))}

@@ -44,5 +44,7 @@ export default function CaseStudySidebarMount() {
       : []),
   ];
 
-  return <CaseStudySidebar sections={sections} />;
+  return (
+    <CaseStudySidebar sections={sections} accent={project.accent ?? "#7E91C0"} />
+  );
 }

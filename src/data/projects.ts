@@ -33,6 +33,10 @@ export type Project = {
   category: ProjectCategory;
   year: string;
   cover: { color: string; emoji: string };
+  /** Per-case-study accent (hex). Drives section labels, the meta bar fill,
+   *  bullets/borders, the title logo, and the sidebar pill. Should be a light
+   *  palette pastel (dark text is placed on it). Falls back to periwinkle. */
+  accent?: string;
   problem: string;
   blurb: string;
   metrics?: string;
@@ -73,6 +77,7 @@ export const projects: Project[] = [
     year: "2025",
     cover: { color: "#FFD6C2", emoji: "🤖" },
     cardImage: "/projects/agenttrace/card.png",
+    accent: "#F2B89A",
     problem:
       "Teams deploying AI agents have no systematic way to know if their agent behaves as designed — before real customers find out it doesn't.",
     blurb:
@@ -129,6 +134,7 @@ export const projects: Project[] = [
     year: "2025",
     cover: { color: "#C8D5C0", emoji: "🛍️" },
     cardImage: "/projects/merchantpulse/card.png",
+    accent: "#C8D5C0",
     problem:
       "Merchants have hundreds of reviews but no fast way to turn them into product decisions.",
     blurb:
@@ -171,6 +177,7 @@ export const projects: Project[] = [
     year: "2024",
     cover: { color: "#D7CDEB", emoji: "🎓" },
     cardImage: "/projects/rof/card.png",
+    accent: "#B8AED4",
     problem:
       "Club institutional knowledge disappears when leadership graduates.",
     blurb:
@@ -205,6 +212,7 @@ export const projects: Project[] = [
     year: "2025",
     cover: { color: "#A8D2EA", emoji: "🧠" },
     cardImage: "/projects/bci-decoder/card.png",
+    accent: "#A8C5DC",
     problem:
       "Off-the-shelf BCI decoders plateau at low accuracy on noisy real-world EEG.",
     blurb:
@@ -253,6 +261,7 @@ export const projects: Project[] = [
     year: "2025",
     cover: { color: "#C8D5C0", emoji: "🦙" },
     cardImage: "/projects/greenllama/card.png",
+    accent: "#F2DC9C",
     problem:
       "Running LLMs on edge devices is power-hungry, and compression often degrades fairness in non-obvious ways.",
     blurb:
@@ -292,6 +301,7 @@ export const projects: Project[] = [
     year: "2024",
     cover: { color: "#F5C6CB", emoji: "🦾" },
     cardImage: "/projects/exoskeleton/card.png",
+    accent: "#F5C6CB",
     problem:
       "Tremor makes everyday tasks like drinking from a cup difficult for Parkinson's patients.",
     blurb:
@@ -323,6 +333,7 @@ export const projects: Project[] = [
     year: "2023",
     cover: { color: "#FCE9B6", emoji: "🦺" },
     cardImage: "/projects/sensing-vest/card.png",
+    accent: "#E8B5C0",
     problem:
       "Most wearable gesture systems fail when sensor placement varies between users.",
     blurb:
@@ -344,6 +355,7 @@ export const projects: Project[] = [
     year: "2023",
     cover: { color: "#D7CDEB", emoji: "🎛️" },
     cardImage: "/projects/gesture-synth/card.png",
+    accent: "#E6E6FA",
     heroImage: "/projects/gesture-synth/hero.png",
     heroVideo: "/projects/gesture-synth/hero.mp4",
     problem:
