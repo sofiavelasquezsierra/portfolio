@@ -331,7 +331,7 @@ function HeroBlock({
 
   if (heroVideo && !videoErrored) {
     return (
-      <div className="relative rounded-3xl overflow-hidden h-48 md:h-64 mb-5 border border-ink/10">
+      <div className="relative rounded-3xl overflow-hidden h-64 md:h-80 lg:h-[28rem] mb-5 border border-ink/10">
         <video
           className="absolute inset-0 w-full h-full object-cover"
           poster={heroImage}
@@ -350,7 +350,7 @@ function HeroBlock({
 
   if (heroImage && !imgErrored) {
     return (
-      <div className="relative rounded-3xl overflow-hidden h-48 md:h-64 mb-5 border border-ink/10">
+      <div className="relative rounded-3xl overflow-hidden h-64 md:h-80 lg:h-[28rem] mb-5 border border-ink/10">
         <Image
           src={heroImage}
           alt={title}
@@ -366,7 +366,7 @@ function HeroBlock({
 
   return (
     <div
-      className="rounded-3xl h-48 md:h-64 flex items-center justify-center text-6xl mb-5"
+      className="rounded-3xl h-64 md:h-80 lg:h-[28rem] flex items-center justify-center text-6xl mb-5"
       style={{ background: fallbackColor }}
     >
       <span>{fallbackEmoji}</span>

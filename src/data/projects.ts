@@ -70,6 +70,141 @@ export type Project = {
 
 export const projects: Project[] = [
   {
+    slug: "neurobridge",
+    title: "NeuroBridge",
+    subtitle: "Bilateral EMG wearable for upper-limb rehab",
+    category: "engineering",
+    year: "2026",
+    cover: { color: "#C3CDE6", emoji: "💪" },
+    accent: "#C3CDE6",
+    heroImage: "/projects/neurobridge/hero.mp4",
+    heroVideo: "/projects/neurobridge/hero.mp4",
+    cardImage: "/projects/neurobridge/card.png",
+    problem:
+      "Stroke and post-surgical rehab happens in a few minutes of clinic observation, then the patient goes home to a black box — no continuous data, no at-home monitoring, and no way to compare the affected limb against the healthy one, which is exactly the signal recovery hinges on.",
+    blurb:
+      "A wearable bilateral EMG system for upper-limb rehab: two textile arm sleeves stream muscle activity from both arms to a native iOS app, where clinicians and patients see real-time asymmetry — and an AI agent suggests exercises that a clinician approves before they ever reach the patient.",
+    metrics: "7 muscle groups · ≥90% accuracy target · <100ms latency",
+    tags: ["SwiftUI", "EMG", "ESP32", "Claude API", "Medical Device"],
+    githubUrl: "[github link]",
+    reportUrl: "[report link]",
+    featured: true,
+    status: "SHIPPED",
+    role: "iOS developer · AI agent designer · Regulatory (510k)",
+    duration: "Spring 2026",
+    team: "5-person CMU team",
+    stack: [
+      "Swift / SwiftUI",
+      "ESP32 + BLE",
+      "Claude API",
+      "SwiftData",
+      "Swift Charts",
+      "MVVM",
+      "OYMotion + MyoWare EMG",
+    ],
+    caseStudy: [
+      {
+        heading: "The solution",
+        body: "NeuroBridge turns rehab into something measurable. A patient slips on **two textile sleeves** — one per arm — that read muscle activity from **seven muscle groups** (biceps, triceps, deltoid, forearm flexors and extensors, wrist flexors and extensors). The signals stream over Bluetooth to an iOS app that shows, in real time, **how the recovering limb compares to the healthy one**. Therapists get continuous, at-home data instead of a five-minute snapshot; patients get guided exercises and immediate feedback.",
+        screenshot: {
+          src: "/projects/neurobridge/architecture.png",
+          caption: "System architecture — bilateral EMG sleeves → ESP32 (signal conditioning, ADC, BLE) → native iOS app → Claude-powered recommendation agent with a clinician-review gate.",
+          aspect: "16/9",
+        },
+      },
+      {
+        heading: "Hardware layer",
+        body: "Each sleeve integrates **surface EMG electrodes** — a mix of **OYMotion Gravity** and **MyoWare 2.0** sensors — positioned over the seven target muscles. An **ESP32** handles the analog front end: signal conditioning, **ADC** sampling, and **BLE** transmission to the phone. Going textile-based and wireless was deliberate — anything a stroke patient has to wire up or calibrate at home doesn't get worn.",
+        screenshot: {
+          src: "/projects/neurobridge/sleeve.jpg",
+          caption: "The textile sleeve and electrode placement across the seven target muscle groups, wired to the ESP32.",
+          aspect: "4/3",
+        },
+      },
+      {
+        heading: "The iOS app",
+        body: "The app is **native Swift / SwiftUI** on an **MVVM** architecture, with **SwiftData** for on-device persistence and **Swift Charts** rendering live EMG traces as they arrive. It supports **two roles**: a **patient** view focused on exercises and progress, and a **medical-provider** view for reviewing sessions, trends, and bilateral asymmetry across visits.",
+        screenshot: {
+          src: "/projects/neurobridge/app-emg-chart.png",
+          caption: "Real-time EMG visualization built with Swift Charts — both arms plotted side by side so asymmetry is visible at a glance.",
+          aspect: "16/10",
+        },
+      },
+      {
+        heading: "The AI recommendation agent",
+        body: "An exercise-recommendation agent built on the **Claude API** reads a patient's recent EMG history and proposes the next set of exercises. The critical design choice: **a clinician reviews and approves every recommendation before it reaches the patient**. The AI drafts; the human decides. This human-in-the-loop gate keeps a recovering patient from ever acting on an unvetted suggestion — essential for anything that touches care.",
+        screenshot: {
+          src: "/projects/neurobridge/agent-review.png",
+          caption: "The clinician-review workflow: Claude drafts a recommended exercise plan, the provider approves or edits, and only then does it reach the patient.",
+          aspect: "16/10",
+        },
+      },
+      {
+        heading: "Validation & results",
+        body: "We targeted **≥90% signal-acquisition accuracy** across the seven muscle groups and **<100ms** end-to-end feedback latency, so a contraction shows up on screen with no perceptible lag. We validated **bilateral asymmetry detection** by inducing **known, controlled imbalances** and confirming the system flagged them, and ran **human-factors testing across multiple sessions** to check that real users could don, use, and trust the device.",
+      },
+      {
+        heading: "Regulatory pathway",
+        body: "NeuroBridge is a **Class II medical device**, so we mapped the full **FDA 510(k)** clearance pathway with **K-Myo by Kinvent** as the predicate device, and aligned the design and risk processes to **ISO 13485** (quality management), **ISO 14971** (risk management), and **IEC 60601-1** (electrical safety). Treating regulation as a design input from the start — not a box to check at the end — shaped everything from electrode isolation to how AI recommendations are logged and reviewed.",
+      },
+      {
+        heading: "My role",
+        body: "I **built the iOS app**, using **Claude Code as my primary development tool** to ship a clinical-grade SwiftUI app on a tight academic timeline. I **designed the AI recommendation agent** and its clinician-review workflow, **owned the hardware-to-software integration** (getting the ESP32's BLE stream into the app cleanly), ran the **human-factors testing**, and authored the **510(k) regulatory analysis**.",
+      },
+      {
+        heading: "Team & context",
+        body: "A **5-person team** built NeuroBridge in **Spring 2026** for Carnegie Mellon's **Medical Device Innovation and Realization** course — a program that takes a wearable from clinical need through prototype, validation, and regulatory strategy.",
+      },
+    ],
+    screenshots: [
+      {
+        src: "/projects/neurobridge/app-patient-home.png",
+        caption: "Patient view — today's exercises, progress, and live feedback.",
+        aspect: "9/16",
+      },
+      {
+        src: "/projects/neurobridge/app-provider-dashboard.png",
+        caption: "Medical-provider view — sessions, trends, and bilateral asymmetry over time.",
+        aspect: "9/16",
+      },
+      {
+        src: "/projects/neurobridge/app-asymmetry.png",
+        caption: "Bilateral asymmetry detail — affected limb measured against the healthy baseline.",
+        aspect: "9/16",
+      },
+      {
+        src: "/projects/neurobridge/app-exercise-review.png",
+        caption: "Exercise plan awaiting clinician approval before it reaches the patient.",
+        aspect: "9/16",
+      },
+    ],
+    keyDecisions: [
+      {
+        title: "Clinician-in-the-loop, always",
+        body: "The AI never speaks to the patient directly. Every recommendation is drafted by Claude and gated behind a clinician's approval — the only safe way to put a model anywhere near a recovering patient.",
+      },
+      {
+        title: "Bilateral by design",
+        body: "Two sleeves, not one. The healthy limb is the baseline you measure recovery against, so symmetric sensing was the whole point — not a nice-to-have.",
+      },
+      {
+        title: "Native iOS, built with Claude Code",
+        body: "SwiftUI + Swift Charts gave us real-time clinical visualization with first-class performance. Claude Code as the primary dev tool let one person ship a clinical-grade app on a semester timeline.",
+      },
+      {
+        title: "Regulated from day one",
+        body: "We designed against 510(k), ISO 13485, and IEC 60601-1 from the first sketch instead of retrofitting compliance later — it changed hardware, software, and the AI workflow alike.",
+      },
+    ],
+    outcomes: [
+      "≥90% target signal-acquisition accuracy across 7 muscle groups",
+      "<100ms sensor-to-screen feedback latency",
+      "Bilateral asymmetry detection validated under controlled, known imbalances",
+      "FDA 510(k) pathway analysis with K-Myo (Kinvent) as predicate device",
+      "Human-factors testing across multiple sessions",
+    ],
+  },
+  {
     slug: "agenttrace",
     title: "AgentTrace",
     subtitle: "AI Agent Evaluation Tool",
