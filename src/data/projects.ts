@@ -9,6 +9,12 @@ export type Screenshot = {
   alt?: string;
   /** Aspect ratio hint for the placeholder box, e.g. "16/9", "4/3", "1/1". */
   aspect?: string;
+  /** Render inside a device frame. "iphone" = phone frame (ignores `aspect`);
+   *  "browser" = web-browser window chrome (uses `aspect` for the screen). */
+  device?: "iphone" | "browser";
+  /** When a section screenshot is `wide`, it renders full-width below the text
+   *  instead of side-by-side — for detailed shots that need to be legible. */
+  wide?: boolean;
 };
 
 export type CaseStudySection = {
@@ -66,28 +72,33 @@ export type Project = {
   cardImage?: string;
   /** Inline screenshots rendered as a gallery after the case study sections. */
   screenshots?: Screenshot[];
+  /** Score gauges (0–10) rendered natively as the hero + card thumbnail —
+   *  e.g. AgentTrace's evaluation report. Takes priority over hero/card images. */
+  scores?: { label: string; value: number; max?: number }[];
+  /** Verdict pill shown above the score rings (e.g. "Needs Tuning"). */
+  verdict?: string;
 };
 
 export const projects: Project[] = [
   {
     slug: "neurobridge",
     title: "NeuroBridge",
-    subtitle: "Bilateral EMG wearable for upper-limb rehab",
+    subtitle: "Bilateral EMG rehab wearable with a clinician-gated AI coach",
     category: "engineering",
     year: "2026",
     cover: { color: "#C3CDE6", emoji: "💪" },
     accent: "#C3CDE6",
-    heroImage: "/projects/neurobridge/hero.mp4",
+    heroImage: "/projects/neurobridge/hero.png",
     heroVideo: "/projects/neurobridge/hero.mp4",
     cardImage: "/projects/neurobridge/card.png",
     problem:
       "Stroke and post-surgical rehab happens in a few minutes of clinic observation, then the patient goes home to a black box — no continuous data, no at-home monitoring, and no way to compare the affected limb against the healthy one, which is exactly the signal recovery hinges on.",
     blurb:
       "A wearable bilateral EMG system for upper-limb rehab: two textile arm sleeves stream muscle activity from both arms to a native iOS app, where clinicians and patients see real-time asymmetry — and an AI agent suggests exercises that a clinician approves before they ever reach the patient.",
-    metrics: "7 muscle groups · ≥90% accuracy target · <100ms latency",
+    metrics: "7 muscle groups · ≥90% accuracy · clinician-gated AI",
     tags: ["SwiftUI", "EMG", "ESP32", "Claude API", "Medical Device"],
-    githubUrl: "[github link]",
-    reportUrl: "[report link]",
+    githubUrl: "https://github.com/sofiavelasquezsierra/NeuroBridge",
+    reportUrl: "https://docs.google.com/document/d/1WPKOY--j-qDWCjcf4MOb5ND5NbhtJaDaawo6EtvXulU/edit?usp=sharing",
     featured: true,
     status: "SHIPPED",
     role: "iOS developer · AI agent designer · Regulatory (510k)",
@@ -100,82 +111,52 @@ export const projects: Project[] = [
       "SwiftData",
       "Swift Charts",
       "MVVM",
-      "OYMotion + MyoWare EMG",
+      "MyoWare EMG",
     ],
     caseStudy: [
       {
-        heading: "The solution",
-        body: "NeuroBridge turns rehab into something measurable. A patient slips on **two textile sleeves** — one per arm — that read muscle activity from **seven muscle groups** (biceps, triceps, deltoid, forearm flexors and extensors, wrist flexors and extensors). The signals stream over Bluetooth to an iOS app that shows, in real time, **how the recovering limb compares to the healthy one**. Therapists get continuous, at-home data instead of a five-minute snapshot; patients get guided exercises and immediate feedback.",
+        heading: "how it works",
+        body: "Two textile sleeves — one per arm — read muscle activity from **seven muscle groups** and stream it over Bluetooth to a native iOS app that shows, in real time, **how the recovering limb compares to the healthy one**. Each sleeve embeds surface EMG electrodes (OYMotion Gravity + MyoWare 2.0); an **ESP32** handles signal conditioning, ADC, and BLE. Textile and wireless on purpose — anything a stroke patient has to wire up at home doesn't get worn.",
         screenshot: {
           src: "/projects/neurobridge/architecture.png",
-          caption: "System architecture — bilateral EMG sleeves → ESP32 (signal conditioning, ADC, BLE) → native iOS app → Claude-powered recommendation agent with a clinician-review gate.",
-          aspect: "16/9",
+          caption: "Signal path — bilateral EMG sleeves through the ESP32, into the iOS app, to a Claude agent gated by clinician review.",
+          aspect: "4/5",
         },
       },
       {
-        heading: "Hardware layer",
-        body: "Each sleeve integrates **surface EMG electrodes** — a mix of **OYMotion Gravity** and **MyoWare 2.0** sensors — positioned over the seven target muscles. An **ESP32** handles the analog front end: signal conditioning, **ADC** sampling, and **BLE** transmission to the phone. Going textile-based and wireless was deliberate — anything a stroke patient has to wire up or calibrate at home doesn't get worn.",
-        screenshot: {
-          src: "/projects/neurobridge/sleeve.jpg",
-          caption: "The textile sleeve and electrode placement across the seven target muscle groups, wired to the ESP32.",
-          aspect: "4/3",
-        },
-      },
-      {
-        heading: "The iOS app",
-        body: "The app is **native Swift / SwiftUI** on an **MVVM** architecture, with **SwiftData** for on-device persistence and **Swift Charts** rendering live EMG traces as they arrive. It supports **two roles**: a **patient** view focused on exercises and progress, and a **medical-provider** view for reviewing sessions, trends, and bilateral asymmetry across visits.",
+        heading: "the app & ai",
+        body: "**Native Swift / SwiftUI** (MVVM) with **SwiftData** persistence and **Swift Charts** for live EMG traces — a **patient** view for exercises and progress, and a **provider** view for trends and asymmetry. A **Claude API** agent drafts the next exercise set from recent history, but **a clinician approves every recommendation before it reaches the patient**. The AI drafts; the human decides.",
         screenshot: {
           src: "/projects/neurobridge/app-emg-chart.png",
-          caption: "Real-time EMG visualization built with Swift Charts — both arms plotted side by side so asymmetry is visible at a glance.",
-          aspect: "16/10",
+          caption: "Real-time EMG visualization in Swift Charts",
+          device: "iphone",
         },
       },
       {
-        heading: "The AI recommendation agent",
-        body: "An exercise-recommendation agent built on the **Claude API** reads a patient's recent EMG history and proposes the next set of exercises. The critical design choice: **a clinician reviews and approves every recommendation before it reaches the patient**. The AI drafts; the human decides. This human-in-the-loop gate keeps a recovering patient from ever acting on an unvetted suggestion — essential for anything that touches care.",
-        screenshot: {
-          src: "/projects/neurobridge/agent-review.png",
-          caption: "The clinician-review workflow: Claude drafts a recommended exercise plan, the provider approves or edits, and only then does it reach the patient.",
-          aspect: "16/10",
-        },
-      },
-      {
-        heading: "Validation & results",
-        body: "We targeted **≥90% signal-acquisition accuracy** across the seven muscle groups and **<100ms** end-to-end feedback latency, so a contraction shows up on screen with no perceptible lag. We validated **bilateral asymmetry detection** by inducing **known, controlled imbalances** and confirming the system flagged them, and ran **human-factors testing across multiple sessions** to check that real users could don, use, and trust the device.",
-      },
-      {
-        heading: "Regulatory pathway",
-        body: "NeuroBridge is a **Class II medical device**, so we mapped the full **FDA 510(k)** clearance pathway with **K-Myo by Kinvent** as the predicate device, and aligned the design and risk processes to **ISO 13485** (quality management), **ISO 14971** (risk management), and **IEC 60601-1** (electrical safety). Treating regulation as a design input from the start — not a box to check at the end — shaped everything from electrode isolation to how AI recommendations are logged and reviewed.",
-      },
-      {
-        heading: "My role",
-        body: "I **built the iOS app**, using **Claude Code as my primary development tool** to ship a clinical-grade SwiftUI app on a tight academic timeline. I **designed the AI recommendation agent** and its clinician-review workflow, **owned the hardware-to-software integration** (getting the ESP32's BLE stream into the app cleanly), ran the **human-factors testing**, and authored the **510(k) regulatory analysis**.",
-      },
-      {
-        heading: "Team & context",
-        body: "A **5-person team** built NeuroBridge in **Spring 2026** for Carnegie Mellon's **Medical Device Innovation and Realization** course — a program that takes a wearable from clinical need through prototype, validation, and regulatory strategy.",
+        heading: "my role",
+        body: "I **built the iOS app** (with Claude Code as my primary dev tool), **designed the AI agent** and its clinician-review workflow, **owned hardware-to-software integration** off the ESP32's BLE stream, ran **human-factors testing**, and authored the **510(k) analysis** — a Class II device mapped against **ISO 13485**, **ISO 14971**, and **IEC 60601-1**, with K-Myo (Kinvent) as the predicate.",
       },
     ],
     screenshots: [
       {
+        src: "/projects/neurobridge/sleeve.jpg",
+        caption: "The textile sleeve — electrodes across the seven target muscles, wired to the ESP32.",
+        aspect: "3/4",
+      },
+      {
         src: "/projects/neurobridge/app-patient-home.png",
         caption: "Patient view — today's exercises, progress, and live feedback.",
-        aspect: "9/16",
+        device: "iphone",
       },
       {
         src: "/projects/neurobridge/app-provider-dashboard.png",
-        caption: "Medical-provider view — sessions, trends, and bilateral asymmetry over time.",
-        aspect: "9/16",
+        caption: "Provider view — sessions, trends, and bilateral asymmetry over time.",
+        device: "iphone",
       },
       {
-        src: "/projects/neurobridge/app-asymmetry.png",
-        caption: "Bilateral asymmetry detail — affected limb measured against the healthy baseline.",
-        aspect: "9/16",
-      },
-      {
-        src: "/projects/neurobridge/app-exercise-review.png",
-        caption: "Exercise plan awaiting clinician approval before it reaches the patient.",
-        aspect: "9/16",
+        src: "/projects/neurobridge/agent-review.png",
+        caption: "AI agent — Claude drafts an exercise plan; a clinician approves it before it ever reaches the patient.",
+        device: "iphone",
       },
     ],
     keyDecisions: [
@@ -197,6 +178,7 @@ export const projects: Project[] = [
       },
     ],
     outcomes: [
+      "Human-in-the-loop AI — every Claude-drafted exercise plan is clinician-approved before it reaches the patient",
       "≥90% target signal-acquisition accuracy across 7 muscle groups",
       "<100ms sensor-to-screen feedback latency",
       "Bilateral asymmetry detection validated under controlled, known imbalances",
@@ -211,12 +193,19 @@ export const projects: Project[] = [
     category: "ai",
     year: "2025",
     cover: { color: "#FFD6C2", emoji: "🤖" },
-    cardImage: "/projects/agenttrace/card.png",
     accent: "#F2B89A",
+    // Native score gauges (from a real evaluation run) power the hero + card.
+    scores: [
+      { label: "Helpfulness", value: 7 },
+      { label: "Policy", value: 9 },
+      { label: "Tone", value: 8 },
+    ],
+    verdict: "Needs Tuning",
+    metrics: "5-dimension scoring · 3 ranked fixes · <90s per run",
     problem:
       "Teams deploying AI agents have no systematic way to know if their agent behaves as designed — before real customers find out it doesn't.",
     blurb:
-      "Configure any AI agent's persona and policies, run test conversations, and get a scored report.",
+      "Configure any AI agent's persona and policies, run synthetic test conversations, and get back a scored report with the three fixes to make next.",
     tags: ["Claude API", "Python", "Streamlit", "LLM Agents"],
     liveUrl: "https://agenttrace.streamlit.app/",
     githubUrl: "https://github.com/sofiavelasquezsierra/agenttrace",
@@ -229,16 +218,42 @@ export const projects: Project[] = [
     stack: ["Python", "Streamlit", "Anthropic SDK", "Pydantic"],
     caseStudy: [
       {
-        heading: "Why this exists",
-        body: "Every team I talked to deploying customer-facing AI agents was doing the same thing: spot-checking conversations by hand. That falls apart at any meaningful scale, and it skips the whole class of failures you don't think to look for. AgentTrace gives you a structured way to stress-test an agent before users do.",
+        heading: "how it works",
+        body: "You define your agent's **persona and policies**. AgentTrace spins up synthetic test conversations across four categories — **helpful queries, edge cases, policy probes, and attempted jailbreaks** — then hands each transcript to a **separate evaluator** that scores it and returns fixes.",
+        screenshot: {
+          src: "/projects/agenttrace/flow.png",
+          caption: "The eval loop — an agent-in-persona is stress-tested, then judged by a separate evaluator model.",
+          aspect: "4/5",
+        },
       },
       {
-        heading: "How it works",
-        body: "You define your agent's persona and policies. AgentTrace generates synthetic test conversations across categories (helpful queries, edge cases, policy probes, attempted jailbreaks). A separate evaluator model scores each transcript on five dimensions and returns three concrete fixes ranked by severity.",
+        heading: "the report",
+        body: "The output isn't a dashboard — it's a **decision**. Every run ends with **five dimension scores** and **three concrete fixes, ranked by severity**, so a PM knows exactly what to change before the next deploy.",
+        screenshot: {
+          src: "/projects/agenttrace/report.png",
+          caption: "The scored report: five evaluation dimensions and three ranked, actionable fixes.",
+          device: "browser",
+          aspect: "3024/1648",
+          wide: true,
+        },
       },
       {
-        heading: "What I learned",
-        body: "The single biggest unlock was separating the agent and evaluator into two model calls with different system prompts. When the same model does both, it tends to grade itself generously and miss tone issues. Splitting them produced sharper, more actionable evaluations.",
+        heading: "what i learned",
+        body: "The biggest unlock was **splitting the agent and the evaluator into two separate model calls** with different system prompts. When one model does both, it grades itself generously and misses tone problems. Two Claude calls produced sharper, more actionable evaluations.",
+      },
+    ],
+    screenshots: [
+      {
+        src: "/projects/agenttrace/configure.png",
+        caption: "Configure — define the agent's persona, policies, and guardrails.",
+        device: "browser",
+        aspect: "1088/1300",
+      },
+      {
+        src: "/projects/agenttrace/conversations.png",
+        caption: "Synthetic test conversations across helpful, edge-case, policy, and jailbreak categories.",
+        device: "browser",
+        aspect: "2030/1490",
       },
     ],
     keyDecisions: [
@@ -247,17 +262,13 @@ export const projects: Project[] = [
         body: "The agent stays in character. The evaluator steps outside and judges it. Self-evaluation collapses both jobs and hides failure modes.",
       },
       {
-        title: "Output decisions, not dashboards",
-        body: "The eval report ends with three ranked fixes, not a wall of metrics. PMs use it to decide what to ship next, not to admire charts.",
-      },
-      {
-        title: "Streamlit on purpose",
-        body: "I wanted to ship in 3 weeks and validate the workflow with real users before investing in custom UI. Streamlit was the right tool for the question.",
+        title: "Decisions, not dashboards",
+        body: "The report ends with three ranked fixes, not a wall of metrics. PMs use it to decide what to ship next.",
       },
     ],
     outcomes: [
       "Live demo deployed and used by 5+ early testers",
-      "Generates a full eval cycle in under 90 seconds",
+      "Full eval cycle in under 90 seconds",
       "Open-sourced on GitHub",
     ],
   },
@@ -342,50 +353,73 @@ export const projects: Project[] = [
   {
     slug: "bci-decoder",
     title: "BCI Decoder",
-    subtitle: "Sensorimotor-rhythm decoder, 64-channel EEG",
+    subtitle: "Offline CSP + LDA decoder for a motor-imagery cursor BCI",
     category: "research",
     year: "2025",
     cover: { color: "#A8D2EA", emoji: "🧠" },
     cardImage: "/projects/bci-decoder/card.png",
+    heroImage: "/projects/bci-decoder/hero.png",
     accent: "#A8C5DC",
     problem:
-      "Off-the-shelf BCI decoders plateau at low accuracy on noisy real-world EEG.",
+      "A live BCI decoder is calibrated by hand during the session — fast, but blind to each person's brain. Could an automated, data-driven pipeline match a decoder a human tuned in real time?",
     blurb:
-      "Built the full stack: electrodes, preprocessing, and two ML architectures. Hit 90.9% offline accuracy on 22.4M+ data points.",
-    metrics: "64-channel EEG · 90.9% accuracy · 22.4M+ data points",
-    tags: ["Python", "PyTorch", "EEG", "Signal Processing"],
+      "An offline EEG decoding pipeline — Common Spatial Patterns + LDA — that learns user-specific spatial filters to move a cursor by imagining left- vs right-hand movement. It matched a hand-tuned live decoder at ~91%, and showed that fewer electrodes beat more.",
+    metrics: "~91% accuracy · 10-electrode montage · matched the live decoder",
+    tags: ["EEG / BCI", "Python", "CSP + LDA", "Signal Processing"],
     githubUrl:
       "https://github.com/sofiavelasquezsierra/Offline-Optimization-of-Sensorimotor-Rhythm-BCI-Decoders",
     featured: true,
     status: "RESEARCH",
-    role: "Lead researcher",
-    duration: "2 semesters",
-    team: "Solo with faculty advisor",
-    stack: ["Python", "PyTorch", "MNE", "NumPy", "scikit-learn"],
+    role: "Solo researcher",
+    duration: "~1 month",
+    team: "Solo",
+    stack: ["Python", "scikit-learn", "SciPy", "NumPy", "Matplotlib"],
     caseStudy: [
       {
-        heading: "Why this exists",
-        body: "Sensorimotor-rhythm BCIs let people move a cursor or prosthetic by imagining motion. The blocker is decoder accuracy on raw EEG, which is noisy, drifty, and subject-specific. I rebuilt the pipeline end-to-end to find where the wins actually came from.",
+        heading: "how it works",
+        body: "A person imagines moving their **left or right hand** to steer a cursor; the two produce mirror-image drops in EEG power over opposite hemispheres. The pipeline applies a **common-average reference** and an **8–15 Hz bandpass**, then **Common Spatial Patterns** learns spatial filters tuned to *that* person's brain. The **log-variance** of the filtered signal feeds an **LDA** classifier, validated with **5-fold cross-validation**.",
+        screenshot: {
+          src: "/projects/bci-decoder/pipeline.png",
+          caption: "The offline decoding pipeline — from imagined movement to cursor control.",
+          aspect: "1139/1341",
+        },
       },
       {
-        heading: "What I built",
-        body: "Electrode setup and recording protocol → bandpass filtering → ICA-based artifact rejection → CSP feature extraction → two model architectures (a CSP+LDA baseline and a small CNN). Cross-validated across subjects.",
+        heading: "fewer electrodes, better decoder",
+        body: "The hypothesis: **strict feature selection beats a broad montage**. Trimming from **17 electrodes down to 10** motor-cortex channels consistently *improved* accuracy — the extra channels were feeding eye-blink and muscle artifacts into CSP, which maximizes variance blindly. **More data isn't always better.**",
+        screenshot: {
+          src: "/projects/bci-decoder/montage.png",
+          caption: "Left-Right decoding accuracy: the 10-electrode motor montage edged out the broader 17-electrode set on both sessions.",
+          aspect: "1623/1080",
+        },
       },
       {
-        heading: "What I learned",
-        body: "The biggest accuracy gains came from the boring parts: artifact rejection and per-subject calibration. Model architecture mattered less than I expected. This shaped how I think about ML in messy-data domains generally.",
+        heading: "what CSP could and couldn't do",
+        body: "On the **lateralized left-right task**, the automated decoder **matched the hand-tuned live baseline** (within cross-validation error) — parity from a fully data-driven pipeline. On the **up-down task** (both hands vs. rest) it **dropped**: both classes light up *both* hemispheres, so there's no spatial contrast for CSP to exploit. The failure mapped cleanly onto the math.",
+        screenshot: {
+          src: "/projects/bci-decoder/results.png",
+          caption: "Offline CSP + LDA vs. the live, hand-tuned baseline — parity on lateralized tasks, a drop on bilateral ones.",
+          aspect: "1623/948",
+          wide: true,
+        },
       },
     ],
     keyDecisions: [
       {
-        title: "Rebuild the pipeline, don't tune the model",
-        body: "I started with a solid model and bad preprocessing. Flipping that produced bigger gains than any hyperparameter sweep.",
+        title: "CSP + LDA over deep learning",
+        body: "With only ~135 valid trials, a CNN would overfit. CSP learns robust spatial filters from a tiny dataset, and LDA's assumptions fit the log-variance features — data-efficient and interpretable, not a black box.",
+      },
+      {
+        title: "Cut electrodes, don't add them",
+        body: "Peripheral channels added high-dimensional noise to CSP's covariance estimates. Restricting to the motor cortex improved generalization — a feature-selection win, not a model win.",
       },
     ],
     outcomes: [
-      "90.9% offline decoder accuracy",
-      "22.4M+ data points processed",
-      "Open-sourced",
+      "Matched a hand-tuned live decoder on the left-right task (~91%, within CV error)",
+      "Feature selection (17 → 10 electrodes) improved accuracy on both sessions",
+      "Diagnosed why CSP fails on bilateral tasks — spatially symmetric classes",
+      "Validated with 5-fold cross-validation (±5% std)",
+      "Open-sourced on GitHub",
     ],
   },
   {

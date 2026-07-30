@@ -27,21 +27,15 @@ export default function CaseStudySidebarMount() {
   const project = getProject(match[1]);
   if (!project) return null;
 
+  // Keep the table of contents short (≤4): the problem plus the main
+  // narrative sections. Gallery / key decisions / outcomes still render on the
+  // page — they just don't clutter the rail.
   const sections: TocSection[] = [
     { id: "overview", label: "the problem" },
     ...(project.caseStudy ?? []).map((s) => ({
       id: slugify(s.heading),
       label: s.heading,
     })),
-    ...(project.screenshots && project.screenshots.length > 0
-      ? [{ id: "gallery", label: "more" }]
-      : []),
-    ...(project.keyDecisions && project.keyDecisions.length > 0
-      ? [{ id: "key-decisions", label: "key decisions" }]
-      : []),
-    ...(project.outcomes && project.outcomes.length > 0
-      ? [{ id: "outcomes", label: "outcomes" }]
-      : []),
   ];
 
   return (

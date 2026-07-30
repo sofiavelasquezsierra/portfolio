@@ -7,7 +7,10 @@
       "Read(//private/tmp/**)",
       "Bash(xargs kill *)",
       "Bash(curl -s -X POST http://localhost:3001/api/visit)",
-      "Bash(curl -s -X POST http://localhost:3002/api/visit)"
+      "Bash(curl -s -X POST http://localhost:3002/api/visit)",
+      "Bash(python3 \"/private/tmp/claude-501/-Users-sofiavelasquez-Desktop-Portfolio/bdf95ac9-e0d3-49fd-92e7-7ced5821a0d5/scratchpad/agenttrace_flow.py\")",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 \"/private/tmp/claude-501/-Users-sofiavelasquez-Desktop-Portfolio/bdf95ac9-e0d3-49fd-92e7-7ced5821a0d5/scratchpad/bci_figures.py\")"
     ]
   }
 }

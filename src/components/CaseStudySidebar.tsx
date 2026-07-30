@@ -196,7 +196,7 @@ export default function CaseStudySidebar({
                   onClick={(e) => handleNav(e, s.id)}
                   onMouseEnter={() => setHoverId(s.id)}
                   onMouseLeave={() => setHoverId(null)}
-                  className={`relative block px-2 py-2 rounded-lg text-[15px] leading-snug transition-colors ${
+                  className={`relative block px-2 py-2 rounded-lg text-[15px] lowercase leading-snug transition-colors ${
                     current ? "text-ink font-medium" : "text-mute hover:text-ink"
                   }`}
                 >

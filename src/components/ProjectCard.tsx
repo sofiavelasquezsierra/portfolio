@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
 import { Project } from "@/data/projects";
+import ScoreRings from "@/components/ScoreRings";
 
 type Props = {
   project: Project;
@@ -20,7 +21,6 @@ type Props = {
 export default function ProjectCard({ project, number, tilt = 0 }: Props) {
   const num = String(number).padStart(2, "0");
   const href = `/work/${project.slug}`;
-  const status = project.status ?? defaultStatus(project.category);
 
   return (
     <Link
@@ -41,29 +41,41 @@ export default function ProjectCard({ project, number, tilt = 0 }: Props) {
         className="relative w-full rounded-[12px] overflow-hidden mt-1.5"
         style={{ height: 188, background: project.cover.color }}
       >
-        <CardMedia
-          heroImage={project.cardImage ?? project.heroImage}
-          fallbackColor={project.cover.color}
-          fallbackEmoji={project.cover.emoji}
-          title={project.title}
-        />
+        {project.scores && project.scores.length > 0 ? (
+          <div
+            className="absolute inset-0 flex items-center justify-center px-4"
+            style={{
+              background: `color-mix(in srgb, ${
+                project.accent ?? project.cover.color
+              } 22%, #FAF7EE)`,
+            }}
+          >
+            <ScoreRings
+              scores={project.scores}
+              showVerdict={false}
+              ringMax={66}
+              gapClass="gap-4"
+            />
+          </div>
+        ) : (
+          <CardMedia
+            heroImage={project.cardImage ?? project.heroImage}
+            fallbackColor={project.cover.color}
+            fallbackEmoji={project.cover.emoji}
+            title={project.title}
+          />
+        )}
         <div className="index-card__sheen absolute inset-0 pointer-events-none" />
       </div>
 
       {/* Body */}
       <div className="flex flex-col mt-2">
         <div className="flex flex-col gap-1.5">
-          <div className="flex items-center justify-between gap-2.5">
-            <h3 className="flex-1 min-w-0 font-serif text-[20px] leading-[1.15] text-ink truncate">
-              {project.title}
-            </h3>
-            <div className="flex items-center gap-1.5 shrink-0">
-              {project.sideProject && <Tag>SIDE PROJECT</Tag>}
-              <Tag>{status}</Tag>
-            </div>
-          </div>
+          <h3 className="font-serif text-[20px] leading-[1.15] text-ink truncate">
+            {project.title}
+          </h3>
 
-          <p className="text-[12px] leading-[1.4] text-ink/65 line-clamp-1">
+          <p className="text-[12px] leading-[1.4] text-ink/65 line-clamp-2">
             {project.subtitle}
           </p>
         </div>
@@ -124,20 +136,6 @@ function CardMedia({
     >
       <span>{fallbackEmoji}</span>
     </div>
-  );
-}
-
-function defaultStatus(c: Project["category"]): string {
-  if (c === "ai") return "SHIPPED";
-  if (c === "research") return "RESEARCH";
-  return "ENGINEERING";
-}
-
-function Tag({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center px-2 py-[2px] rounded text-[9px] uppercase tracking-[0.16em] font-medium border border-ink/15 bg-cream text-ink/70 whitespace-nowrap">
-      {children}
-    </span>
   );
 }
 
