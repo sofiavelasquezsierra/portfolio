@@ -26,9 +26,7 @@ export default function AboutPage() {
   return (
     <main className="bg-cream">
       <Hero />
-      <PhotoStrip />
       <TravelLog />
-      <Favorites />
     </main>
   );
 }
