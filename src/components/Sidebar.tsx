@@ -38,8 +38,8 @@ export default function Sidebar() {
       </Link>
 
       <p className="mt-4 text-sm text-mute leading-relaxed">
-        product &amp; ml in wearables and health ai. side projects built with ai
-        for fun. cmu ms biomedical engineering, aug 2026.
+        product &amp; ml builder. i love building things with ai — llm agents,
+        full-stack apps, and quick prototypes. cmu ms, aug 2026.
       </p>
 
       <nav className="mt-8 flex flex-col gap-1">

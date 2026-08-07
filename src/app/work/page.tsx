@@ -14,6 +14,27 @@ const filters: { id: "all" | ProjectCategory; label: string }[] = [
 
 const tiltCycle = [-1.2, 0.8, -0.4, 1.4, -0.6, 0.2];
 
+/** Display order for the grid — leads with the AI/software builds, with the
+ *  hardware-heavy projects further down. */
+const ORDER = [
+  "agenttrace",
+  "goalorch",
+  "neurobridge",
+  "rof",
+  "greenllama",
+  "bci-decoder",
+  "exoskeleton",
+  "sensing-vest",
+  "gesture-synth",
+];
+const rank = (slug: string) => {
+  const i = ORDER.indexOf(slug);
+  return i === -1 ? 999 : i;
+};
+const orderedProjects = [...projects]
+  .filter((p) => !p.hidden)
+  .sort((a, b) => rank(a.slug) - rank(b.slug));
+
 /** Distribute items round-robin into N columns so each column flows
  * independently (a hover-expand on one card pushes only the cards below it
  * in the same column, not the whole row). */
@@ -26,7 +47,9 @@ function chunkColumns<T>(arr: T[], n: number): T[][] {
 export default function WorkPage() {
   const [filter, setFilter] = useState<"all" | ProjectCategory>("all");
   const visible =
-    filter === "all" ? projects : projects.filter((p) => p.category === filter);
+    filter === "all"
+      ? orderedProjects
+      : orderedProjects.filter((p) => p.category === filter);
 
   // Pre-compute three column distributions; CSS shows the matching one.
   const cols1 = chunkColumns(visible, 1);
@@ -48,9 +71,8 @@ export default function WorkPage() {
               things i&apos;ve <span className="wavy">built</span>.
             </h1>
             <p className="mt-2 max-w-xl text-mute text-sm md:text-base">
-              product &amp; ml in wearables and health ai. side projects built
-              with ai for fun. 
-              
+              product &amp; ml builder — i love building with ai, from llm agents
+              to full-stack apps and ml prototypes.
             </p>
           </div>
 
@@ -109,7 +131,7 @@ function Columns({
                 <ProjectCard
                   project={p}
                   number={
-                    projects.findIndex((x) => x.slug === p.slug) + 1
+                    orderedProjects.findIndex((x) => x.slug === p.slug) + 1
                   }
                   tilt={tiltCycle[idx % tiltCycle.length]}
                 />

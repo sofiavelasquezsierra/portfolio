@@ -55,6 +55,8 @@ export type Project = {
   status?: ProjectStatus;
   /** Marks card with a Side Project tag. */
   sideProject?: boolean;
+  /** Hidden from the site (grid + "up next"), but kept in the data. */
+  hidden?: boolean;
   // Case-study content
   role?: string;
   duration?: string;
@@ -83,7 +85,7 @@ export const projects: Project[] = [
   {
     slug: "neurobridge",
     title: "NeuroBridge",
-    subtitle: "Bilateral EMG rehab wearable with a clinician-gated AI coach",
+    subtitle: "Clinician-gated AI exercise agent for upper-limb rehab",
     category: "engineering",
     year: "2026",
     cover: { color: "#C3CDE6", emoji: "💪" },
@@ -94,7 +96,7 @@ export const projects: Project[] = [
     problem:
       "Stroke and post-surgical rehab happens in a few minutes of clinic observation, then the patient goes home to a black box — no continuous data, no at-home monitoring, and no way to compare the affected limb against the healthy one, which is exactly the signal recovery hinges on.",
     blurb:
-      "A wearable bilateral EMG system for upper-limb rehab: two textile arm sleeves stream muscle activity from both arms to a native iOS app, where clinicians and patients see real-time asymmetry — and an AI agent suggests exercises that a clinician approves before they ever reach the patient.",
+      "A clinical AI agent that drafts personalized rehab exercises from live muscle-activity data — gated by human-in-the-loop clinician review before anything reaches the patient. Runs on a native iOS app backed by a bilateral EMG wearable.",
     metrics: "7 muscle groups · ≥90% accuracy · clinician-gated AI",
     tags: ["SwiftUI", "EMG", "ESP32", "Claude API", "Medical Device"],
     githubUrl: "https://github.com/sofiavelasquezsierra/NeuroBridge",
@@ -116,7 +118,7 @@ export const projects: Project[] = [
     caseStudy: [
       {
         heading: "how it works",
-        body: "Two textile sleeves — one per arm — read muscle activity from **seven muscle groups** and stream it over Bluetooth to a native iOS app that shows, in real time, **how the recovering limb compares to the healthy one**. Each sleeve embeds surface EMG electrodes (OYMotion Gravity + MyoWare 2.0); an **ESP32** handles signal conditioning, ADC, and BLE. Textile and wireless on purpose — anything a stroke patient has to wire up at home doesn't get worn.",
+        body: "Two textile sleeves — one per arm — read muscle activity from **seven muscle groups** and stream it over Bluetooth. Each sleeve embeds surface EMG electrodes (OYMotion Gravity + MyoWare 2.0); an **ESP32** handles signal conditioning, ADC, and BLE. A **native Swift / SwiftUI** app (SwiftData + Swift Charts) shows, in real time, **how the recovering limb compares to the healthy one** — in a patient view and a clinician view.",
         screenshot: {
           src: "/projects/neurobridge/architecture.png",
           caption: "Signal path — bilateral EMG sleeves through the ESP32, into the iOS app, to a Claude agent gated by clinician review.",
@@ -124,17 +126,17 @@ export const projects: Project[] = [
         },
       },
       {
-        heading: "the app & ai",
-        body: "**Native Swift / SwiftUI** (MVVM) with **SwiftData** persistence and **Swift Charts** for live EMG traces — a **patient** view for exercises and progress, and a **provider** view for trends and asymmetry. A **Claude API** agent drafts the next exercise set from recent history, but **a clinician approves every recommendation before it reaches the patient**. The AI drafts; the human decides.",
+        heading: "the claude agent",
+        body: "The recommendation engine is an **agent built on the Claude API**. It reads a patient's recent EMG history and **drafts the next set of exercises** — reasoning over trends, asymmetry, and progress the way a therapist would. But every plan is **gated behind human-in-the-loop clinician review** before it reaches the patient: **Claude drafts, the clinician decides.** That review gate is the whole reason a model can sit this close to a recovering patient safely — and it mirrors how a real prior-auth or triage agent has to work in a clinical setting.",
         screenshot: {
-          src: "/projects/neurobridge/app-emg-chart.png",
-          caption: "Real-time EMG visualization in Swift Charts",
+          src: "/projects/neurobridge/agent-review.png",
+          caption: "The Claude agent drafts an exercise plan; a clinician approves or edits it before it ever reaches the patient.",
           device: "iphone",
         },
       },
       {
         heading: "my role",
-        body: "I **built the iOS app** (with Claude Code as my primary dev tool), **designed the AI agent** and its clinician-review workflow, **owned hardware-to-software integration** off the ESP32's BLE stream, ran **human-factors testing**, and authored the **510(k) analysis** — a Class II device mapped against **ISO 13485**, **ISO 14971**, and **IEC 60601-1**, with K-Myo (Kinvent) as the predicate.",
+        body: "I **designed and built the Claude-powered recommendation agent** and its clinician-review workflow, **built the iOS app** with **Claude Code as my primary dev tool**, **owned hardware-to-software integration** off the ESP32's BLE stream, ran **human-factors testing**, and authored the **510(k) analysis** — a Class II device mapped against **ISO 13485**, **ISO 14971**, and **IEC 60601-1**, with K-Myo (Kinvent) as the predicate.",
       },
     ],
     screenshots: [
@@ -154,8 +156,8 @@ export const projects: Project[] = [
         device: "iphone",
       },
       {
-        src: "/projects/neurobridge/agent-review.png",
-        caption: "AI agent — Claude drafts an exercise plan; a clinician approves it before it ever reaches the patient.",
+        src: "/projects/neurobridge/app-emg-chart.png",
+        caption: "Real-time EMG visualization in Swift Charts, both arms side by side.",
         device: "iphone",
       },
     ],
@@ -278,6 +280,7 @@ export const projects: Project[] = [
     subtitle: "AI-Powered Product Feedback Analyzer",
     category: "ai",
     year: "2025",
+    hidden: true,
     cover: { color: "#C8D5C0", emoji: "🛍️" },
     cardImage: "/projects/merchantpulse/card.png",
     accent: "#C8D5C0",
@@ -316,39 +319,189 @@ export const projects: Project[] = [
     ],
   },
   {
-    slug: "rof",
-    title: "ROF",
-    subtitle: "Student Club Management Platform",
-    category: "ai",
-    year: "2024",
-    cover: { color: "#D7CDEB", emoji: "🎓" },
-    cardImage: "/projects/rof/card.png",
-    accent: "#B8AED4",
+    slug: "goalorch",
+    title: "GoalOrch",
+    subtitle: "Production database & ETL layer for a student-analytics platform",
+    category: "engineering",
+    year: "2025",
+    cover: { color: "#C6DED3", emoji: "🎯" },
+    cardImage: "/projects/goalorch/card.png",
+    heroImage: "/projects/goalorch/hero.png",
+    accent: "#A9CFC0",
+    metrics: "19-table schema · 15+ safe migrations · live in 3 states",
     problem:
-      "Club institutional knowledge disappears when leadership graduates.",
+      "A CMU research group was shipping a live dashboard to middle-school math teachers — but the data behind it came from messy exports and a database that was risky to change while real classrooms depended on it every week.",
     blurb:
-      "Built for the handoff, not the day-to-day. Onboarding the next generation is the real workflow.",
-    tags: ["Next.js", "TypeScript", "T3 Stack", "Full-Stack"],
-    liveUrl: "https://rof-zyb9.vercel.app/",
-    githubUrl: "https://github.com/sofiavelasquezsierra/rof",
-    status: "HANDED OVER",
-    role: "Co-lead · full-stack",
-    duration: "Semester project",
-    team: "3 engineers",
-    stack: ["Next.js", "TypeScript", "tRPC", "Prisma", "Postgres", "Tailwind"],
+      "I designed and built the entire data layer behind GoalOrch — a platform where math teachers track student engagement, diagnostics, and weekly goals. Schema, ETL, safe migrations, backups, and tests, all shipped to a production server through code review.",
+    tags: ["Data Engineering", "MySQL", "Python", "Production"],
+    liveUrl: "https://goals.cs.cmu.edu/",
+    featured: true,
+    status: "SHIPPED",
+    role: "Database & data-engineering lead",
+    duration: "Ongoing · CMU PLUS Lab",
+    team: "Small research team",
+    stack: [
+      "MySQL 8",
+      "Python",
+      "SQLAlchemy",
+      "Bash",
+      "Ubuntu",
+      "Git · PR workflow",
+      "cron",
+    ],
     caseStudy: [
       {
-        heading: "Why this exists",
-        body: "Every May, McGill clubs lose two years of muscle memory when senior leadership graduates. Notion docs go unread; Slacks die. We built a platform where club knowledge lives in structured, handoff-ready form by default.",
+        heading: "how it works",
+        body: "Student data lands as **exports from Box** — i-Ready usage, lesson completion, diagnostic scores. An **ETL pipeline** (Python + SQLAlchemy) cleans and loads it into a **19-table MySQL schema**: teachers, classes, students, daily and weekly usage, diagnostics, goals, secure share links, and session logging — wired together with foreign keys, unique and CHECK constraints, and indexes tuned for fast dashboard queries. The React app reads straight from it.",
+        screenshot: {
+          src: "/projects/goalorch/dashboard.png",
+          caption: "The teacher dashboard my data layer serves — engagement, lesson completion, and diagnostic scores per class.",
+          device: "browser",
+          aspect: "1375/861",
+        },
+      },
+      {
+        heading: "shipping safely on a live database",
+        body: "Every schema change ships as a **versioned, backward-compatible migration** paired with an **automated verification script** that asserts the result is exactly right — column types, nullability, defaults, indexes, constraints, foreign keys. Nothing touches production directly: changes are **applied and verified on a QA database, opened as a pull request, reviewed, and only then promoted to prod**. Automated **nightly backups** (compressed dumps, read-only user, 14-day rotation) and a guarded snapshot-restore tool with dry-run validation keep the live database recoverable.",
+        screenshot: {
+          src: "/projects/goalorch/workflow.png",
+          caption: "The safe-change loop — no migration reaches production without passing QA verification and code review.",
+          aspect: "1139/1315",
+        },
+      },
+      {
+        heading: "data teachers can trust",
+        body: "The data has to be **trustworthy and private**. A test matrix covers real loading scenarios — new semester, weekly and daily updates, malformed files, duplicates, out-of-order loads — and automated tests assert **no orphaned records, no duplicates, consistent aggregates, and no personal identifiers in the logging tables**. Deterministic **seed and reset tooling** generates internally-consistent mock data (coherent engagement tiers across scores, usage, and goals), so the app can be demoed and tested realistically even when real student data is restricted.",
+      },
+    ],
+    screenshots: [
+      {
+        src: "/projects/goalorch/goals.png",
+        caption: "Weekly goal recommendations, generated from each student's usage and diagnostic trends.",
+        device: "browser",
+        aspect: "776/634",
+      },
+      {
+        src: "/projects/goalorch/student.png",
+        caption: "A single student's progress — engagement, lessons, and diagnostic history over time.",
+        device: "browser",
+        aspect: "1115/815",
       },
     ],
     keyDecisions: [
       {
-        title: "Optimize for the handoff",
-        body: "We refused to build a generic CMS. Every feature was scored against: does this make next year's leadership 1% better off?",
+        title: "QA first, production last",
+        body: "Every change is verified on a QA database and reviewed as a PR before it touches prod. Iterating fast on a live system means never breaking the classrooms already depending on it.",
+      },
+      {
+        title: "Synthetic data that can't contradict itself",
+        body: "Mock data is generated from engagement tiers, so scores, usage, and goals stay coherent — realistic enough to demo and test against when real student data is restricted.",
+      },
+      {
+        title: "Privacy by construction",
+        body: "Logging tables carry no personal identifiers, and the test suite fails if any slip in. Student privacy is enforced by the schema and the tests, not by convention.",
       },
     ],
-    outcomes: ["Deployed live; used by Blockchain at McGill leadership team"],
+    outcomes: [
+      "Shipped to production, serving the live teacher dashboard",
+      "Started with 2 schools in Pennsylvania — now expanding to California and Tennessee",
+      "Shaped features through direct teacher interviews",
+      "19-table schema evolved via 15+ verified, backward-compatible migrations",
+      "Automated nightly backups + guarded restore keep production recoverable",
+    ],
+  },
+  {
+    slug: "rof",
+    title: "ROF",
+    subtitle: "Full-stack platform for managing university clubs",
+    category: "engineering",
+    year: "2024",
+    cover: { color: "#D7CDEB", emoji: "🎓" },
+    cardImage: "/projects/rof/card.png",
+    heroImage: "/projects/rof/hero.png",
+    accent: "#B8AED4",
+    metrics: "9 pages shipped · role-based auth · live on Vercel",
+    problem:
+      "University clubs run on scattered Excel sheets and Google Forms that fall apart when leadership graduates — with no single place to register members, verify them, and hand the whole club off intact.",
+    blurb:
+      "A full-stack platform where club execs create clubs, register and verify members, and track engagement — and students join and manage their memberships. Built T3-stack (Next.js, tRPC, Prisma, Postgres), with each feature owned end-to-end from UI to API to database, and shipped live on Vercel.",
+    tags: ["Full-Stack", "Next.js", "tRPC", "Prisma"],
+    liveUrl: "https://rof-zyb9.vercel.app/",
+    githubUrl: "https://github.com/sofiavelasquezsierra/rof",
+    status: "HANDED OVER",
+    role: "Co-lead · full-stack feature owner",
+    duration: "1 semester · McGill",
+    team: "3 engineers",
+    stack: [
+      "Next.js",
+      "TypeScript",
+      "tRPC",
+      "Prisma",
+      "PostgreSQL (Neon)",
+      "NextAuth",
+      "UploadThing",
+      "Tailwind",
+    ],
+    caseStudy: [
+      {
+        heading: "how it works",
+        body: "Two roles share one system. **Club execs** create a club, **register and verify members** (custom ID checks, email confirmation, and double-registration prevention), and track engagement through a **membership dashboard** and an **analytics view** of enrollment trends and demographics — plus an **event scheduler**. **Students** sign in, verify their registration, and manage which clubs they've joined. It's **9 pages** in all, gated by **role-based access control**.",
+        screenshot: {
+          src: "/projects/rof/dashboard.png",
+          caption: "The club membership dashboard — overview, verified members, and activity at a glance.",
+          device: "browser",
+          aspect: "1142/573",
+        },
+      },
+      {
+        heading: "full-stack, per feature",
+        body: "We built on the **T3 stack** — Next.js, **tRPC**, **Prisma**, and **Postgres** (Neon) — so a change to the database schema surfaces as a **type error in the UI** before it can ship broken. Rather than splitting into frontend and backend people, **each of us owned whole features end-to-end**: the React UI, the tRPC API routes, and the schema behind them. Auth runs on **NextAuth**, file uploads on **UploadThing**, and the whole thing deploys to **Vercel**.",
+      },
+      {
+        heading: "built for the handoff",
+        body: "The real workflow isn't the day-to-day — it's **May, when leadership graduates** and two years of muscle memory walks out the door. Every feature was scored against one question: *does this make next year's exec team better off?* Structured member data, verified rosters, and a live dashboard mean a club can be **handed off intact** instead of rebuilt from scratch.",
+      },
+    ],
+    screenshots: [
+      {
+        src: "/projects/rof/landing.png",
+        caption: "Landing — two roles, one system: club execs manage clubs, students verify and join.",
+        device: "browser",
+        aspect: "1142/598",
+      },
+      {
+        src: "/projects/rof/analytics.png",
+        caption: "Analytics dashboard — enrollment trends and membership demographics.",
+        device: "browser",
+        aspect: "1096/612",
+      },
+      {
+        src: "/projects/rof/events.png",
+        caption: "Event scheduler — planning and tracking club events.",
+        device: "browser",
+        aspect: "1143/642",
+      },
+    ],
+    keyDecisions: [
+      {
+        title: "T3 for end-to-end type safety",
+        body: "Next.js + tRPC + Prisma meant a change to the Postgres schema showed up as a type error in the UI. A 3-person team shipped 9 pages in a semester without an API contract silently drifting.",
+      },
+      {
+        title: "Own features, not layers",
+        body: "Instead of a frontend person and a backend person, each of us owned whole features — UI, tRPC routes, and schema. Fewer handoffs, faster iteration, clearer ownership.",
+      },
+      {
+        title: "A roster you can trust",
+        body: "Custom ID verification, email confirmation, and double-registration prevention — because a membership list is only useful if it's real.",
+      },
+    ],
+    outcomes: [
+      "Shipped to production on Vercel — adopted by the Blockchain at McGill leadership team",
+      "9 pages, 5 fully database-backed, with role-based access control",
+      "Each feature owned end-to-end: React UI → tRPC API → Prisma → Postgres",
+      "Integrated NextAuth (auth), UploadThing (uploads), and Neon (Postgres)",
+    ],
   },
   {
     slug: "bci-decoder",
@@ -368,6 +521,8 @@ export const projects: Project[] = [
     tags: ["EEG / BCI", "Python", "CSP + LDA", "Signal Processing"],
     githubUrl:
       "https://github.com/sofiavelasquezsierra/Offline-Optimization-of-Sensorimotor-Rhythm-BCI-Decoders",
+    reportUrl:
+      "https://docs.google.com/document/d/1z1d4Me4yEaNhA1GdGfsDZoyCaTRz83ev/edit?usp=sharing&ouid=107914815789740637612&rtpof=true&sd=true",
     featured: true,
     status: "RESEARCH",
     role: "Solo researcher",
@@ -425,41 +580,61 @@ export const projects: Project[] = [
   {
     slug: "greenllama",
     title: "GreenLlama",
-    subtitle: "Compressed, FPGA-accelerated LLM with bias eval",
+    subtitle: "Compressed, FPGA-accelerated LLM with a fairness gate",
     category: "research",
     year: "2025",
     cover: { color: "#C8D5C0", emoji: "🦙" },
     cardImage: "/projects/greenllama/card.png",
+    heroImage: "/projects/greenllama/hero.png",
     accent: "#F2DC9C",
     problem:
-      "Running LLMs on edge devices is power-hungry, and compression often degrades fairness in non-obvious ways.",
+      "Shrinking an LLM to run on edge hardware saves power — but compression quietly amplifies the model's biases, and almost nobody measures it.",
     blurb:
-      "8× LLM compression · 43× power reduction · 56% bias reduction. FPGA-accelerated inference plus a responsible-AI evaluation pipeline.",
+      "A compressed, FPGA-accelerated LLM that pairs aggressive efficiency with a responsible-AI gate: 8× smaller, 43× less power, and 56% less measured bias — because a configuration that saved power but degraded fairness never shipped.",
     metrics: "8× compression · 43× power reduction · 56% bias reduction",
-    tags: ["PyTorch", "FPGA", "LLM", "Responsible AI"],
+    tags: ["LLM", "Quantization", "FPGA", "Responsible AI"],
     reportUrl:
       "https://drive.google.com/file/d/1fR2bXgjVwXstJf0-KpICgG9OVb1JLaes/view?usp=sharing",
     status: "RESEARCH",
     role: "Contributor — quantization + bias eval",
     duration: "1 semester",
     team: "4 engineers",
-    stack: ["PyTorch", "Verilog", "FPGA toolchain", "BOLD eval suite"],
+    stack: [
+      "PyTorch",
+      "Quantization",
+      "Verilog",
+      "FPGA toolchain",
+      "BOLD bias eval",
+    ],
     caseStudy: [
       {
-        heading: "Why this exists",
-        body: "Compressing LLMs to run on edge hardware tends to amplify existing biases — and nobody measures it. We treated bias eval as a first-class metric alongside latency and power.",
+        heading: "how it works",
+        body: "Start with a large language model, then **quantize and compress it ~8× smaller**. Inference runs on an **FPGA** (implemented in Verilog) for a **43× drop in power** versus the baseline. Crucially, every compression configuration is scored on **bias** — using the **BOLD** benchmark — right alongside latency and power, so fairness is a metric you optimize, not something you discover in production.",
+      },
+      {
+        heading: "bias is a first-class metric",
+        body: "Compression doesn't degrade a model evenly — it **amplifies existing biases** in ways that don't show up in accuracy numbers. We measured bias at **every** configuration and **blocked any that improved power or size but regressed fairness past a threshold**. The result: **56% less measured bias** than the uncompressed baseline while still hitting the efficiency targets. Treating fairness as a gate — not a report filed afterward — is the whole point.",
+      },
+      {
+        heading: "my role",
+        body: "I worked on **quantization** — finding compression configurations that held up under the efficiency targets — and built the **bias-evaluation pipeline** that scored each one on the **BOLD** benchmark, so fairness could sit next to power and latency as a first-class objective.",
       },
     ],
     keyDecisions: [
       {
-        title: "Bias as a first-class metric",
-        body: "We blocked any compression configuration that improved power but regressed bias scores past a threshold.",
+        title: "Fairness as a gate, not a report",
+        body: "Any configuration that saved power but regressed bias past a threshold was blocked. Bias sat next to latency and power as a hard constraint — not a footnote discovered after the fact.",
+      },
+      {
+        title: "Efficiency proven on hardware",
+        body: "Inference in Verilog on an FPGA — not a GPU with the power dialed down — so the 43× power number reflects the edge hardware these models actually have to run on.",
       },
     ],
     outcomes: [
-      "8× compression",
-      "43× power reduction on FPGA",
-      "56% reduction in measured bias vs. baseline",
+      "8× model compression",
+      "43× lower inference power on FPGA vs. baseline",
+      "56% reduction in measured bias (BOLD) vs. the uncompressed baseline",
+      "Bias evaluated as a hard constraint at every compression configuration",
     ],
   },
   {
@@ -468,6 +643,7 @@ export const projects: Project[] = [
     subtitle: "EMG/IMU-driven assistive arm",
     category: "engineering",
     year: "2024",
+    hidden: true,
     cover: { color: "#F5C6CB", emoji: "🦾" },
     cardImage: "/projects/exoskeleton/card.png",
     accent: "#F5C6CB",

@@ -30,7 +30,7 @@ const caveat = Caveat({
 export const metadata: Metadata = {
   title: "Sofia Velasquez Sierra",
   description:
-    "Sofia Velasquez Sierra — product and ML in wearables and health AI. Side projects built with AI for fun. CMU MS Biomedical Engineering, Aug 2026.",
+    "Sofia Velasquez Sierra — product & ML builder. I love building with AI: LLM agents, full-stack apps, and ML tools. CMU MS, Aug 2026.",
 };
 
 export default function RootLayout({

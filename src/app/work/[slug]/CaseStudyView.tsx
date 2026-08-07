@@ -122,17 +122,7 @@ export default function CaseStudyView({
             <section id="gallery" className="mt-8 scroll-mt-28">
               <Panel tint={8}>
                 <SectionLabel>more</SectionLabel>
-                <div
-                  className={`grid gap-6 items-start ${
-                    project.screenshots.some((s) => s.device === "browser")
-                      ? "sm:grid-cols-2"
-                      : "grid-cols-2 lg:grid-cols-4"
-                  }`}
-                >
-                  {project.screenshots.map((s, i) => (
-                    <ScreenshotCard key={i} shot={s} />
-                  ))}
-                </div>
+                <Gallery screenshots={project.screenshots} />
               </Panel>
             </section>
           )}
@@ -275,6 +265,44 @@ function BodySection({
         </div>
       </Panel>
     </section>
+  );
+}
+
+/** Gallery — phone (app) screenshots render as a centered strip so they stay a
+ *  sensible size and never leave a lone item stranded; wider photos/browser
+ *  shots sit in their own row above. Keeps the two shapes from clashing. */
+function Gallery({ screenshots }: { screenshots: Screenshot[] }) {
+  const phones = screenshots.filter((s) => s.device === "iphone");
+  const wide = screenshots.filter((s) => s.device !== "iphone");
+
+  return (
+    <>
+      {wide.length === 1 ? (
+        <div className="mx-auto max-w-[440px]">
+          <ScreenshotCard shot={wide[0]} />
+        </div>
+      ) : wide.length > 1 ? (
+        <div className="grid gap-6 items-start sm:grid-cols-2">
+          {wide.map((s, i) => (
+            <ScreenshotCard key={i} shot={s} />
+          ))}
+        </div>
+      ) : null}
+
+      {phones.length > 0 && (
+        <div
+          className={`flex flex-wrap justify-center gap-5 sm:gap-7 ${
+            wide.length ? "mt-7" : ""
+          }`}
+        >
+          {phones.map((s, i) => (
+            <div key={i} className="w-[45%] max-w-[190px] sm:w-[180px]">
+              <ScreenshotCard shot={s} />
+            </div>
+          ))}
+        </div>
+      )}
+    </>
   );
 }
 

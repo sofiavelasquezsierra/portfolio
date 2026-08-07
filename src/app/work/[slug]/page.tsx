@@ -16,8 +16,10 @@ export default function CaseStudyPage({
   const project = getProject(params.slug);
   if (!project) return notFound();
 
-  const idx = projects.findIndex((p) => p.slug === project.slug);
-  const next = projects[(idx + 1) % projects.length];
+  // "Up next" cycles through visible (non-hidden) projects only.
+  const visible = projects.filter((p) => !p.hidden);
+  const idx = visible.findIndex((p) => p.slug === project.slug);
+  const next = visible[(idx + 1) % visible.length] ?? visible[0];
 
   return <CaseStudyView project={project} next={next} />;
 }

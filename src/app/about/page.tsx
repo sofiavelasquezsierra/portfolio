@@ -59,13 +59,12 @@ function Hero() {
               hi, i&apos;m <span className="wavy">sofia</span>.
             </h1>
             <p className="mt-4 text-lg text-ink/85 leading-relaxed">
-              product and ml in{" "}
+              i love building with ai — from{" "}
               <span className="bg-rose/15 text-ink px-1 rounded">
-                wearables and health ai
-              </span>
-              . i turn noisy biosignals (eeg, semg, imu) into things people
-              actually use on their wrist, ears, or head — and on the side i
-              build little things with ai for fun.
+                llm agents
+              </span>{" "}
+              to full-stack apps and ml. i also turn noisy biosignals (eeg,
+              semg, imu) into products people actually use.
             </p>
 
             {/* Identity grid — origin & passport removed */}
@@ -78,7 +77,7 @@ function Hero() {
                 </span>
               </KV>
               <KV label="role">product &amp; ml engineer</KV>
-              <KV label="focus">wearables · health ai</KV>
+              <KV label="focus">ai agents · full-stack</KV>
             </div>
 
             {/* Places + languages */}
