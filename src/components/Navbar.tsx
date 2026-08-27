@@ -1,12 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useVisitor } from "@/hooks/useVisitor";
-import { getCursor } from "@/data/cursors";
 
 const links = [
+  { href: "/", label: "home" },
   { href: "/work", label: "work" },
   { href: "/about", label: "about" },
   { href: "/gallery", label: "gallery" },
@@ -15,11 +13,8 @@ const links = [
 
 /** Mobile-only nav. Desktop uses Sidebar. */
 export default function Navbar() {
-  const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const { cursor } = useVisitor();
-  const picked = getCursor(cursor);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 16);
@@ -27,8 +22,6 @@ export default function Navbar() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
-
-  if (pathname === "/") return null;
 
   return (
     <nav
@@ -39,24 +32,15 @@ export default function Navbar() {
       }`}
     >
       <div className="section-padding flex items-center justify-between h-16">
-        <Link href="/work" className="font-serif text-xl text-rose">
+        <Link href="/" className="font-serif text-xl text-rose">
           sofia
         </Link>
 
         <div className="flex items-center gap-3">
-          {cursor && (
-            <span
-              className="text-base leading-none"
-              style={{ color: picked.color }}
-              aria-label={`your cursor is ${picked.label}`}
-            >
-              {picked.glyph}
-            </span>
-          )}
           <button
             aria-label="Toggle menu"
             onClick={() => setOpen((v) => !v)}
-            className="flex flex-col gap-1.5 p-2 cursor-target"
+            className="flex flex-col gap-1.5 p-2"
           >
             <span
               className={`w-5 h-px bg-ink transition-transform ${

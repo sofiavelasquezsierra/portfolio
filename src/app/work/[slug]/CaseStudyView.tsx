@@ -95,6 +95,8 @@ export default function CaseStudyView({
               <HeroBlock
                 heroImage={project.heroImage}
                 heroVideo={project.heroVideo}
+                heroAspect={project.heroAspect}
+                heroDevice={project.heroDevice}
                 fallbackColor={project.cover.color}
                 fallbackEmoji={project.cover.emoji}
                 title={project.title}
@@ -460,16 +462,22 @@ function RichText({ text }: { text: string }) {
 }
 
 /** Hero block: looping video if provided, else image, else the colored emoji
- *  block. A fixed 16/9 frame keeps the layout stable across screen sizes. */
+ *  block. Defaults to a 16/9 frame so the layout stays stable across screen
+ *  sizes; `heroAspect` opts a project into its asset's real proportions, and
+ *  `heroDevice: "browser"` wraps a bare app capture in window chrome. */
 function HeroBlock({
   heroImage,
   heroVideo,
+  heroAspect,
+  heroDevice,
   fallbackColor,
   fallbackEmoji,
   title,
 }: {
   heroImage?: string;
   heroVideo?: string;
+  heroAspect?: string;
+  heroDevice?: "browser";
   fallbackColor: string;
   fallbackEmoji: string;
   title: string;
@@ -478,13 +486,14 @@ function HeroBlock({
   const [videoErrored, setVideoErrored] = useState(false);
 
   const frame =
-    "relative w-full rounded-3xl overflow-hidden border border-ink/10 bg-codebg aspect-[16/9]";
+    "relative w-full rounded-3xl overflow-hidden border border-ink/10 bg-codebg";
+  const frameStyle = { aspectRatio: heroAspect ?? "16/9" };
 
   const heroImageIsImage = heroImage && !/\.(mp4|webm|mov)$/i.test(heroImage);
 
   if (heroVideo && !videoErrored) {
     return (
-      <div className={frame} data-pet-perch>
+      <div className={frame} style={frameStyle} data-pet-perch>
         <video
           className="absolute inset-0 w-full h-full object-cover"
           poster={heroImageIsImage ? heroImage : undefined}
@@ -502,17 +511,25 @@ function HeroBlock({
   }
 
   if (heroImageIsImage && !imgErrored) {
-    return (
-      <div className={frame} data-pet-perch>
-        <Image
-          src={heroImage}
-          alt={title}
-          fill
-          sizes="(max-width: 1024px) 100vw, 960px"
-          className="object-cover"
-          priority
-          onError={() => setImgErrored(true)}
-        />
+    const media = (
+      <Image
+        src={heroImage}
+        alt={title}
+        fill
+        sizes="(max-width: 1024px) 100vw, 960px"
+        className={
+          heroDevice === "browser" ? "object-cover object-top" : "object-cover"
+        }
+        priority
+        onError={() => setImgErrored(true)}
+      />
+    );
+
+    return heroDevice === "browser" ? (
+      <BrowserFrame aspect={heroAspect ?? "16/10"}>{media}</BrowserFrame>
+    ) : (
+      <div className={frame} style={frameStyle} data-pet-perch>
+        {media}
       </div>
     );
   }

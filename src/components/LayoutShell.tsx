@@ -1,24 +1,20 @@
 "use client";
 
-import { usePathname } from "next/navigation";
 import Footer from "./Footer";
 import PageTransition from "./PageTransition";
 import Pet from "./Pet";
 
-/** Adds the sidebar offset on every page except the landing/onboarding. */
+/** Offsets every page for the fixed sidebar rail. */
 export default function LayoutShell({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-  const isLanding = pathname === "/";
-
   return (
     <>
-      <div className={isLanding ? "" : "lg:pl-[280px] xl:pl-[320px]"}>
+      <div className="lg:pl-[220px] xl:pl-[250px]">
         <PageTransition>{children}</PageTransition>
-        {!isLanding && <Footer />}
+        <Footer />
       </div>
       {/* Sofia's pet — global, persists across pages, draggable. */}
       <Pet />

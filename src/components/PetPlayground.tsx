@@ -109,7 +109,7 @@ export default function PetPlayground() {
           <div className="mt-5 flex flex-wrap gap-3">
             <button
               onClick={tossTreat}
-              className="cursor-target flex-1 py-3 px-4 rounded-xl bg-cream text-ink text-sm font-medium hover:bg-rose hover:text-cream transition-colors"
+              className="flex-1 py-3 px-4 rounded-xl bg-cream text-ink text-sm font-medium hover:bg-rose hover:text-cream transition-colors"
             >
               🍎 toss a treat
             </button>
@@ -118,7 +118,7 @@ export default function PetPlayground() {
                 setSessionRun(0);
                 setTreats([]);
               }}
-              className="cursor-target px-4 py-3 rounded-xl border border-cream/30 text-cream/80 text-sm hover:border-cream hover:text-cream transition-colors"
+              className="px-4 py-3 rounded-xl border border-cream/30 text-cream/80 text-sm hover:border-cream hover:text-cream transition-colors"
             >
               reset run
             </button>

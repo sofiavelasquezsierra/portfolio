@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useVisitor } from "@/hooks/useVisitor";
 import PhotoOrLogo from "./PhotoOrLogo";
-import { getCursor } from "@/data/cursors";
 
 const links = [
+  { href: "/", label: "home", glyph: "✧" },
   { href: "/work", label: "work", glyph: "✦" },
   { href: "/about", label: "about", glyph: "✿" },
   { href: "/gallery", label: "gallery", glyph: "❋" },
@@ -15,39 +14,35 @@ const links = [
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { cursor } = useVisitor();
-  const picked = getCursor(cursor);
 
-  if (pathname === "/") return null;
   // Case-study detail pages render their own CaseStudySidebar in this rail.
   if (/^\/work\/[^/]+$/.test(pathname)) return null;
 
   return (
-    <aside className="hidden lg:flex fixed top-0 left-0 bottom-0 w-[280px] xl:w-[320px] z-30 flex-col p-6 xl:p-8 border-r border-ink/10 bg-cream/95 backdrop-blur-md">
-      <Link href="/work" className="block">
+    <aside className="hidden lg:flex fixed top-0 left-0 bottom-0 w-[220px] xl:w-[250px] z-30 flex-col p-5 xl:p-6 border-r border-ink/10 bg-cream/95 backdrop-blur-md">
+      <Link href="/" className="block">
         <PhotoOrLogo
-          size={104}
-          imgSize={104}
+          size={76}
+          imgSize={76}
           rounded="rounded-2xl"
-          className="mb-4"
+          className="mb-3"
         />
-        <h1 className="font-serif text-3xl text-ink leading-none">sofia</h1>
-        <p className="font-serif text-2xl text-ink/70 leading-tight">
+        <h1 className="font-serif text-2xl text-ink leading-none">sofia</h1>
+        <p className="font-serif text-xl text-ink/70 leading-tight">
           velasquez sierra
         </p>
       </Link>
 
-      <p className="mt-4 text-sm text-mute leading-relaxed">
-        product &amp; ml builder. i love building things with ai — llm agents,
-        full-stack apps, and quick prototypes. cmu ms, aug 2026.
-      </p>
-
-      <nav className="mt-8 flex flex-col gap-1">
+      <nav className="mt-7 flex flex-col gap-1">
         <p className="text-[10px] uppercase tracking-[0.22em] text-mute mb-2">
           explore
         </p>
         {links.map((l) => {
-          const active = pathname === l.href || pathname.startsWith(`${l.href}/`);
+          // "/" must match exactly — every path startsWith it.
+          const active =
+            l.href === "/"
+              ? pathname === "/"
+              : pathname === l.href || pathname.startsWith(`${l.href}/`);
           return (
             <Link
               key={l.href}
@@ -90,7 +85,7 @@ export default function Sidebar() {
             </svg>
           </SocialLink>
           <SocialLink
-            href="mailto:svelasqu@andrew.cmu.edu"
+            href="mailto:sofiavs321@gmail.com"
             label="Email"
             external={false}
           >
@@ -102,19 +97,7 @@ export default function Sidebar() {
       </div>
 
       <div className="mt-auto pt-6 border-t border-ink/10">
-        {cursor ? (
-          <p className="text-xs text-mute flex items-center gap-1.5">
-            your cursor
-            <span
-              className="text-base leading-none"
-              style={{ color: picked.color }}
-            >
-              {picked.glyph}
-            </span>
-          </p>
-        ) : (
-          <p className="text-xs text-mute">hi there.</p>
-        )}
+        <p className="text-xs text-mute">hi there.</p>
         <p className="text-[10px] uppercase tracking-[0.22em] text-mute mt-1">
           built with claude code · 2026
         </p>

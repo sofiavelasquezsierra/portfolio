@@ -229,7 +229,7 @@ export default function CaseStudySidebar({
     <>
       {/* Desktop fixed rail */}
       <aside
-        className="hidden lg:flex fixed top-0 left-0 bottom-0 w-[280px] xl:w-[320px] z-30 flex-col p-6 xl:p-8 border-r border-ink/10 bg-cream/95 backdrop-blur-md overflow-y-auto"
+        className="hidden lg:flex fixed top-0 left-0 bottom-0 w-[220px] xl:w-[250px] z-30 flex-col p-5 xl:p-6 border-r border-ink/10 bg-cream/95 backdrop-blur-md overflow-y-auto"
         style={{ "--accent-ink": accentInk } as React.CSSProperties}
       >
         {inner}

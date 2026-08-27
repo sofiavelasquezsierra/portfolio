@@ -77,7 +77,7 @@ function Item({ item, index }: { item: Favorite; index: number }) {
       viewport={{ once: true }}
       transition={{ duration: 0.45, delay: index * 0.05 }}
       whileHover={{ rotate: 0, y: -4, scale: 1.06, zIndex: 10 }}
-      className="relative bg-white border border-ink/10 rounded-xl flex flex-col items-center justify-center p-2 cursor-target shadow-md"
+      className="relative bg-white border border-ink/10 rounded-xl flex flex-col items-center justify-center p-2 shadow-md"
     >
       {item.wearables && (
         <span

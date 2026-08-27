@@ -77,7 +77,7 @@ export default function SignaturePad({
       <div className="relative rounded-2xl border border-dashed border-ink/25 bg-cream/60 overflow-hidden">
         <canvas
           ref={canvasRef}
-          className="block w-full h-44 touch-none cursor-target"
+          className="block w-full h-44 touch-none"
           onPointerDown={start}
           onPointerMove={move}
           onPointerUp={end}

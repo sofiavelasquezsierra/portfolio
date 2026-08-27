@@ -18,8 +18,9 @@ export const experience: Experience[] = [
   {
     date: "Apr 2026 – Present",
     role: "Graduate Researcher",
-    org: "Weber Neural Interfaces Lab (Meta Collaboration), CMU",
-    detail: "ML pipelines for Meta's sEMG wristband.",
+    org: "Weber Neural Interfaces Lab, CMU",
+    detail:
+      "Wearables data analysis; forecast models for stroke patient recovery.",
     logo: "/logos/cmu.png",
   },
   {

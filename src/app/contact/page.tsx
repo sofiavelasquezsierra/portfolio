@@ -19,16 +19,16 @@ export default function ContactPage() {
               let&apos;s build <span className="wavy">something</span>.
             </h1>
             <p className="mt-2 max-w-xl text-mute text-sm">
-              full-time roles, august 2026 — product &amp; ml in wearables
-              and health ai.
+              full-time roles, august 2026 — product and software engineering
+              in health ai and wearables.
             </p>
           </div>
           <div className="flex flex-wrap gap-2 text-xs max-w-full overflow-hidden">
             <a
-              href="mailto:svelasqu@andrew.cmu.edu"
+              href="mailto:sofiavs321@gmail.com"
               className="px-3 py-1.5 rounded-full bg-ink text-white hover:bg-rose transition-colors truncate max-w-[220px] sm:max-w-none"
             >
-              svelasqu@andrew.cmu.edu
+              sofiavs321@gmail.com
             </a>
             <a
               href="https://github.com/sofiavelasquezsierra"

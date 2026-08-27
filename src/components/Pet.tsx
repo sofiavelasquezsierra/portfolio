@@ -135,9 +135,6 @@ export default function Pet() {
   const reduced = useReducedMotion();
   const pathname = usePathname();
 
-  // Hide on landing — keep the welcome screen clean.
-  if (pathname === "/") return null;
-
   return <PetBody pathname={pathname} reduced={reduced} />;
 }
 
@@ -842,7 +839,7 @@ function PetBody({
       <button
         ref={hitRef}
         type="button"
-        className="site-pet__hit cursor-target"
+        className="site-pet__hit"
         aria-label="Pet"
       >
         <span className="site-pet__bob">

@@ -147,7 +147,7 @@ export default function ParticleSandbox() {
     <div className="relative rounded-3xl overflow-hidden border border-ink/10 bg-cream">
       <canvas
         ref={canvasRef}
-        className="block w-full h-[440px] cursor-target"
+        className="block w-full h-[440px]"
         style={{ touchAction: "none" }}
       />
       <div className="absolute top-4 left-4 px-3 py-1.5 rounded-full bg-white/80 backdrop-blur border border-ink/10 text-xs text-ink/70">

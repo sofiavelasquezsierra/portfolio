@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { projects, ProjectCategory, Project } from "@/data/projects";
+import { orderedProjects, ProjectCategory, Project } from "@/data/projects";
 import ProjectCard from "@/components/ProjectCard";
 
 const filters: { id: "all" | ProjectCategory; label: string }[] = [
@@ -13,27 +13,6 @@ const filters: { id: "all" | ProjectCategory; label: string }[] = [
 ];
 
 const tiltCycle = [-1.2, 0.8, -0.4, 1.4, -0.6, 0.2];
-
-/** Display order for the grid — leads with the AI/software builds, with the
- *  hardware-heavy projects further down. */
-const ORDER = [
-  "agenttrace",
-  "goalorch",
-  "neurobridge",
-  "rof",
-  "greenllama",
-  "bci-decoder",
-  "exoskeleton",
-  "sensing-vest",
-  "gesture-synth",
-];
-const rank = (slug: string) => {
-  const i = ORDER.indexOf(slug);
-  return i === -1 ? 999 : i;
-};
-const orderedProjects = [...projects]
-  .filter((p) => !p.hidden)
-  .sort((a, b) => rank(a.slug) - rank(b.slug));
 
 /** Distribute items round-robin into N columns so each column flows
  * independently (a hover-expand on one card pushes only the cards below it
@@ -71,8 +50,8 @@ export default function WorkPage() {
               things i&apos;ve <span className="wavy">built</span>.
             </h1>
             <p className="mt-2 max-w-xl text-mute text-sm md:text-base">
-              product &amp; ml builder — i love building with ai, from llm agents
-              to full-stack apps and ml prototypes.
+              software engineer headed toward product — ai products, full-stack
+              apps, and ml on real human signals.
             </p>
           </div>
 

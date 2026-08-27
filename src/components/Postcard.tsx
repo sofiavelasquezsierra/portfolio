@@ -75,7 +75,7 @@ export default function Postcard() {
     const body = encodeURIComponent(
       `${form.message}\n\n— ${form.name} (${form.email})`
     );
-    window.location.href = `mailto:svelasqu@andrew.cmu.edu?subject=${subject}&body=${body}`;
+    window.location.href = `mailto:sofiavs321@gmail.com?subject=${subject}&body=${body}`;
     setSent(true);
   }
 
@@ -119,8 +119,8 @@ export default function Postcard() {
                 </p>
                 <p className="mt-4 text-sm text-ink/70 leading-relaxed">
                   i&apos;m looking for full-time roles starting <br />
-                  <strong>august 2026</strong> — product &amp; ml in wearables
-                  and health ai.
+                  <strong>august 2026</strong> — product and software
+                  engineering in health ai and wearables.
                 </p>
                 <p className="mt-6 text-xs uppercase tracking-[0.2em] text-ink/60">
                   from
@@ -303,7 +303,7 @@ function TappableStamp({
         height: TRAY_MOBILE,
         filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.14))",
       }}
-      className="cursor-target relative select-none flex-shrink-0 bg-transparent border-0 p-0"
+      className="relative select-none flex-shrink-0 bg-transparent border-0 p-0"
       aria-label={`place ${stamp.alt}`}
     >
       <StampImage
@@ -340,7 +340,7 @@ function DraggableStamp({
         height: TRAY_DESKTOP,
         filter: "drop-shadow(0 4px 10px rgba(0,0,0,0.14))",
       }}
-      className="cursor-target relative select-none flex-shrink-0"
+      className="relative select-none flex-shrink-0"
     >
       <StampImage
         src={stamp.src}

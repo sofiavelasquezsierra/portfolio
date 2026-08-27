@@ -227,7 +227,7 @@ export default function PetTicTacToe() {
                 onClick={() => handleClick(i)}
                 disabled={disabled}
                 aria-label={`cell ${i + 1}${cell ? ` ${cell}` : " empty"}`}
-                className={`cursor-target aspect-square rounded-lg border ${
+                className={`aspect-square rounded-lg border ${
                   isWinning
                     ? "border-rose bg-rose/20 text-rose"
                     : "border-cream/20"
@@ -262,7 +262,7 @@ export default function PetTicTacToe() {
           <button
             onClick={newGame}
             disabled={thinking && !result}
-            className="cursor-target px-3 py-1.5 rounded-lg border border-cream/30 text-cream/80 text-xs hover:border-cream hover:text-cream transition-colors disabled:opacity-40"
+            className="px-3 py-1.5 rounded-lg border border-cream/30 text-cream/80 text-xs hover:border-cream hover:text-cream transition-colors disabled:opacity-40"
           >
             {result ? "play again" : "new game"}
           </button>

@@ -67,6 +67,12 @@ export type Project = {
   outcomes?: string[];
   /** Optional hero image rendered at the top of the case study (replaces emoji block). */
   heroImage?: string;
+  /** Aspect ratio for the hero frame, e.g. "2436/1656". Defaults to 16/9 —
+   *  set it to the asset's real dimensions when the shot shouldn't be cropped. */
+  heroAspect?: string;
+  /** Render the hero inside browser-window chrome, like a `device: "browser"`
+   *  screenshot. Use for raw captures of a web app that have no chrome of their own. */
+  heroDevice?: "browser";
   /** Optional looping hero video (muted autoplay). Takes priority over heroImage;
    *  heroImage is used as the poster while it loads. */
   heroVideo?: string;
@@ -82,6 +88,98 @@ export type Project = {
 };
 
 export const projects: Project[] = [
+  {
+    slug: "medrag",
+    title: "MedRAG",
+    subtitle: "Self-correcting RAG over biomedical papers",
+    category: "ai",
+    year: "2026",
+    cover: { color: "#BADCDD", emoji: "🧬" },
+    accent: "#A8D1D2",
+    // The hero is a bare app capture (2436×1656), so it keeps its own
+    // proportions and borrows browser chrome instead of being cropped to 16/9.
+    heroImage: "/projects/medrag/hero.png",
+    heroAspect: "2436/1656",
+    heroDevice: "browser",
+    cardImage: "/projects/medrag/hero.png",
+    problem:
+      "Ask a general-purpose RAG tool about a clinical paper and it runs one semantic search, then answers from whatever came back — even when what came back was thin. You get a confident paragraph and no page to check it against.",
+    blurb:
+      "Upload a stack of biomedical papers and ask questions about them. MedRAG judges its own retrieval before it answers — if the passages are too thin it rewrites the query and searches again — and every claim comes back cited to a page you can open.",
+    metrics: "5-node LangGraph loop · 768-d PubMedBERT · page-level citations",
+    tags: ["LangGraph", "RAG", "PubMedBERT", "Supabase", "Python"],
+    githubUrl: "https://github.com/sofiavelasquezsierra/research-navigator-chat",
+    featured: true,
+    status: "SHIPPED",
+    sideProject: true,
+    role: "Sole builder · designer",
+    duration: "Summer 2026",
+    team: "Solo",
+    stack: [
+      "LangGraph",
+      "Python",
+      "FastAPI",
+      "PubMedBERT",
+      "Supabase pgvector",
+      "Pydantic",
+      "Mermaid.js",
+    ],
+    caseStudy: [
+      {
+        heading: "how it works",
+        body: "MedRAG runs as a **LangGraph** pipeline — five nodes over one shared state object, not a single call. `query_analysis` rewrites what you asked into something a vector index can match, `retrieve` embeds that with **PubMedBERT** and pulls the closest passages out of Supabase, and `relevance_check` reads them back to decide whether they're enough. Only then does `synthesize` write an answer.\n\nThe node I care about most is `relevance_check`. It asks an **LLM judge** whether the passages actually cover the question, and if they don't it doesn't answer anyway — it routes back to `query_analysis` **with a note about what was missing**, so the next search is a different search and not the same one twice. That loop is **bounded**: `max_query_retries` caps it, and when the budget runs out MedRAG says the papers don't cover it rather than filling the gap itself.",
+        screenshot: {
+          src: "/projects/medrag/architecture.png",
+          caption: "The five nodes and the edge that matters — relevance_check can send the whole thing back to the top.",
+          aspect: "1160/1300",
+        },
+      },
+      {
+        heading: "citations you can check",
+        body: "A citation like “(Title, p. 4, Efficacy Results)” is only worth anything if page 4 really says that. So the citation pass runs **after** synthesis: it walks every inline citation in the response, matches it against the metadata of the chunks that were actually retrieved, and rewrites the matches into badges that link to the exact passage. **Citations that don't match a retrieved chunk don't become links** — if the model invented one, it stays plain text instead of getting a badge that lends it authority.\n\nSelf-correcting retrieval is easy to **claim**, so there's a benchmark harness behind all of it, scoring **Hit@K** and **Precision@K** on retrieval, **citation accuracy**, and **faithfulness** — does the answer stay inside the excerpts it was given. Faithfulness is the one that kept me honest: it's the metric that catches the model quietly going beyond its sources.",
+        screenshot: {
+          src: "/projects/medrag/citations.png",
+          caption: "Every badge in the answer resolves to the retrieved passage behind it.",
+          device: "browser",
+        },
+      },
+      {
+        heading: "diagram mode",
+        body: "Ask for a diagram instead of a paragraph and `synthesize` emits a **Mermaid** spec rather than prose. The catch is that a model writing Mermaid produces syntax that **almost** parses — a stray code fence, an unquoted label with a parenthesis in it — and one bad character renders nothing at all.\n\nSo `render_diagram` cleans it before it ever reaches a renderer: strip the fences and preamble, quote every node label across all the shapes, then validate. The **browser** does the actual drawing, which keeps a headless Chrome off the server entirely.",
+        screenshot: {
+          src: "/projects/medrag/diagram.png",
+          caption: "Diagram mode — a sanitized Mermaid spec rendered client-side.",
+          device: "browser",
+        },
+      },
+    ],
+    keyDecisions: [
+      {
+        title: "Judge the retrieval, not just the answer",
+        body: "Most guardrails check the output after the fact. Checking the passages first means a bad search gets fixed by searching again, instead of being papered over by a well-written paragraph.",
+      },
+      {
+        title: "PubMedBERT over a general embedding API",
+        body: "Drug names, trial acronyms, and clinical jargon are exactly where general-purpose embeddings blur together. A domain model runs locally, costs nothing per token, and separates the terms that matter here.",
+      },
+      {
+        title: "Sanitize on the server, render in the browser",
+        body: "The backend owns correctness — cleaning and validating the Mermaid spec. The browser owns pixels. That split keeps Puppeteer and a headless Chrome out of the deployment entirely.",
+      },
+      {
+        title: "Stateless server, state in the browser",
+        body: "Threads, uploaded PDFs, and history live in localStorage; each request carries the document ids it should search. The server stays trivial to scale and retrieval stays scoped to the papers you're actually reading.",
+      },
+    ],
+    outcomes: [
+      "Bounded self-correction — thin retrievals trigger a rewritten query instead of a confident guess",
+      "768-d PubMedBERT embeddings over Supabase pgvector, scoped per conversation",
+      "Citations resolve to a page, and unmatched ones never render as links",
+      "Mermaid specs validated server-side before they reach the renderer",
+      "Eval harness scoring Hit@K, Precision@K, faithfulness, and citation accuracy",
+      "Open-sourced on GitHub",
+    ],
+  },
   {
     slug: "neurobridge",
     title: "NeuroBridge",
@@ -786,3 +884,32 @@ export const projects: Project[] = [
 export function getProject(slug: string) {
   return projects.find((p) => p.slug === slug);
 }
+
+/** Display order for the /work grid — leads with the AI/software builds, with
+ *  the hardware-heavy projects further down. The home page leads with the first
+ *  three, so reordering here is how you change what the landing page shows. */
+export const projectOrder = [
+  "medrag",
+  "agenttrace",
+  "goalorch",
+  "neurobridge",
+  "rof",
+  "greenllama",
+  "bci-decoder",
+  "exoskeleton",
+  "sensing-vest",
+  "gesture-synth",
+];
+
+const rank = (slug: string) => {
+  const i = projectOrder.indexOf(slug);
+  return i === -1 ? 999 : i;
+};
+
+/** Every visible project, in display order. */
+export const orderedProjects = [...projects]
+  .filter((p) => !p.hidden)
+  .sort((a, b) => rank(a.slug) - rank(b.slug));
+
+/** The three the home page leads with. */
+export const recentProjects = orderedProjects.slice(0, 3);

@@ -30,7 +30,7 @@ export const placesLived: Place[] = [
   },
   {
     country: "Brazil",
-    city: "São Paulo",
+    city: "Rio de Janeiro",
     flag: "🇧🇷",
     years: "teenage years",
     note: "where i learned portuguese and how to be loud at futebol games.",
@@ -70,7 +70,7 @@ export const funFacts: string[] = [
   "my passport has stamps from kenya, brazil, france, canada, and the usa.",
   "i can switch between four languages in a single conversation (and confuse everyone).",
   "i'm currently learning urdu — slowly, lovingly.",
-  "i collect physical stamps and boarding passes (yes, like an old person).",
+  "i've never met a city i couldn't find a good coffee shop in.",
   "i make playlists for every flight i take.",
   "i think the best ideas come from layovers in foreign airports.",
 ];

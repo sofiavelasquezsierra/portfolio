@@ -56,26 +56,28 @@ function Hero() {
             <h1 className="mt-3 font-serif text-5xl md:text-6xl text-ink leading-[1.05]">
               hi, i&apos;m <span className="wavy">sofia</span>.
             </h1>
-            <p className="mt-4 text-lg text-ink/85 leading-relaxed">
-              i love building with ai — from{" "}
+            <p className="mt-4 text-lg md:text-xl text-ink/85 leading-relaxed max-w-[52ch]">
+              software engineer headed toward{" "}
+              <strong className="text-ink font-semibold">product</strong>. two
+              swe internships in fintech and security, a{" "}
               <span className="bg-rose/15 text-ink px-1 rounded">
-                llm agents
+                computational bme
               </span>{" "}
-              to full-stack apps and ml. i also turn noisy biosignals (eeg,
-              semg, imu) into products people actually use.
+              ms at cmu, and a habit of turning noisy biosignals (eeg, semg,
+              imu) into products people actually use.
             </p>
 
             {/* Identity grid — origin & passport removed */}
             <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-              <KV label="based">🇺🇸 Pittsburgh</KV>
+              <KV label="based">🇺🇸 SF · NYC</KV>
               <KV label="status">
                 <span className="inline-flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
                   open · aug 2026
                 </span>
               </KV>
-              <KV label="role">product &amp; ml engineer</KV>
-              <KV label="focus">ai agents · full-stack</KV>
+              <KV label="role">swe → product</KV>
+              <KV label="focus">ai products · health</KV>
             </div>
 
             {/* Places + languages */}
@@ -158,7 +160,7 @@ function PhotoPolaroid({
       viewport={{ once: true }}
       transition={{ duration: 0.55 }}
       whileHover={{ rotate: 0, y: -4, scale: 1.04, zIndex: 10 }}
-      className="cursor-target relative bg-white p-3 pb-10 shadow-[0_10px_24px_-12px_rgba(0,0,0,0.3)]"
+      className="relative bg-white p-3 pb-10 shadow-[0_10px_24px_-12px_rgba(0,0,0,0.3)]"
       style={{ width: 200 }}
     >
       <div className="relative aspect-[4/5] bg-cream/80 overflow-hidden flex items-center justify-center">
@@ -264,9 +266,10 @@ function TravelLog() {
                 currently
               </p>
               <p className="text-ink/85 text-sm leading-relaxed">
-                building ml pipelines for meta&apos;s semg wristband at
-                cmu&apos;s weber neural interfaces lab + a research assistant
-                at the human-computer interaction institute.
+                wearables data analysis at cmu&apos;s weber neural interfaces
+                lab — training forecast models for stroke patient recovery —
+                plus research assistant work at the human-computer interaction
+                institute.
               </p>
             </div>
           </div>

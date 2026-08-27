@@ -26,7 +26,7 @@ export default function ProjectCard({ project, number, tilt = 0 }: Props) {
     <Link
       href={href}
       style={{ ["--card-tilt" as string]: `${tilt}deg` }}
-      className="index-card group relative flex flex-col cursor-target"
+      className="index-card group relative flex flex-col"
     >
       {/* Top row: hole-punch + No. NN */}
       <div className="flex items-center justify-between w-full">
