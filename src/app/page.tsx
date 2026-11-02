@@ -58,37 +58,28 @@ function Intro() {
           <div className="mt-5 max-w-[72ch]">
             <div className="space-y-4 text-lg md:text-xl text-ink/85 leading-relaxed">
               <p>
-                software engineer with a{" "}
+                Software engineer with a{" "}
                 <span className="bg-rose/15 text-ink px-1 rounded">
-                  computational bme
+                  computational BME
                 </span>{" "}
-                background, moving toward{" "}
+                background, building toward{" "}
                 <strong className="text-ink font-semibold">product</strong>.
-                i&apos;ve shipped llm agents and rag systems, full-stack web
-                apps, and models trained on biosignals — often all three inside
-                one project. right now that&apos;s wearables data analysis at
-                cmu&apos;s weber neural interfaces lab, training forecast models
-                for stroke patient recovery, plus an edtech platform and a
-                self-correcting rag agent i built recently. before cmu, two
-                summers as an{" "}
-                <strong className="text-ink font-semibold">swe intern</strong>{" "}
-                at btg pactual and bnp paribas.
+                Right now I&apos;m building data analysis and ML pipelines for
+                stroke patient recovery research with wearables at CMU&apos;s
+                Weber Neural Interfaces Lab and HCII, finishing my M.S. at
+                Carnegie Mellon in August 2026.
               </p>
               <p>
-                i was lucky to grow up between paris, bogotá, nairobi and rio de
-                janeiro before landing in montreal for a computer engineering
-                degree at mcgill. carnegie mellon came next, where i finish my
-                ms in august 2026.
+                I ship projects that combine LLM agents, RAG systems, full-stack
+                apps, and biosignal models — often all three at once.
+                Previously, two summers shipping production code at BTG Pactual
+                and BNP Paribas.
               </p>
             </div>
             <p className="mt-4 text-lg leading-relaxed text-ink/70">
-              more than anything, i like projects that start as a question and
-              end as something people actually use. i spent two and a half years
-              as co-president of blockchain at mcgill, i switch between spanish,
-              english, portuguese and french mid-conversation (and i&apos;m
-              slowly learning urdu), and most days you&apos;ll find me at the
-              gym or working through the coffee shops of whatever city
-              i&apos;m in.
+              I grew up between Paris, Bogotá, Nairobi, and Rio, switch between
+              four languages mid-sentence, and care most about questions that
+              become products people use.
             </p>
           </div>
 
